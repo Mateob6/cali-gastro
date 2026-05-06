@@ -1,8 +1,8 @@
-# Cali Gastro — Restaurant Tracker
+# Esquina Foodie — Restaurant Tracker
 
 ## Overview
 
-Tracker colaborativo de restaurantes en Cali. Single HTML file con React + Firebase Realtime Database.
+Tracker colaborativo de restaurantes en Cali. Single HTML file con React + Firebase Realtime Database + Leaflet.js para mapa interactivo.
 
 - **Página:** https://mateob6.github.io/cali-gastro/
 - **Firebase:** https://cali-gastro-default-rtdb.firebaseio.com/
@@ -12,8 +12,19 @@ Tracker colaborativo de restaurantes en Cali. Single HTML file con React + Fireb
 
 - React 18 via CDN (babel standalone)
 - Firebase Realtime Database (compat SDK via CDN)
+- Leaflet.js + OpenStreetMap (mapa interactivo, sin API key)
 - GitHub Pages para hosting
 - Un solo archivo: `index.html`
+
+## Páginas
+
+| Página | Descripción |
+|--------|-------------|
+| **Inicio** | Landing con stats, restaurantes destacados, accesos rápidos |
+| **Restaurantes** | Lista completa con grid/tabla, filtros, búsqueda, detalle, agregar |
+| **Mapa** | Mapa interactivo de Cali con marcadores por restaurante |
+
+Navegación via BottomNav persistente (Inicio · Restaurantes · Mapa).
 
 ## Agregar restaurantes
 
@@ -43,7 +54,9 @@ Busca el restaurante "[NOMBRE]" en Cali, Colombia. Devuelve ÚNICAMENTE un bloqu
   "vibe": "[Descripción del ambiente en máximo 8 palabras]",
   "reserva": [true si se recomienda reservar, false si no],
   "closedDay": "[Día(s) cerrado o 'Abierto siempre']",
-  "instagram": "[handle sin @ o null si no tiene]"
+  "instagram": "[handle sin @ o null si no tiene]",
+  "lat": [latitud decimal, 4 decimales mínimo],
+  "lng": [longitud decimal, 4 decimales mínimo]
 }
 
 TAGS VÁLIDOS (seleccionar 3-5 que apliquen):
@@ -59,6 +72,7 @@ $$$ = plato fuerte $70,000–$120,000 COP
 $$$$ = plato fuerte > $120,000 COP
 
 Busca en Google Maps, Instagram, TripAdvisor, Restaurant Guru, Rappi, Degusta.
+Para lat/lng: busca las coordenadas exactas en Google Maps o Restaurant Guru.
 Si no encuentras un dato, usa null para números o "" para strings.
 ```
 
@@ -74,7 +88,7 @@ curl -X PUT "https://cali-gastro-default-rtdb.firebaseio.com/cali-gastro/restaur
 
 ### Paso 3: Verificación
 
-La página se actualiza sola (Firebase realtime listener). No necesita push a GitHub ni reload manual.
+La página se actualiza sola (Firebase realtime listener). No necesita push a GitHub ni reload manual. El restaurante aparece tanto en la lista como en el mapa automáticamente.
 
 ### Notas
 
@@ -82,6 +96,7 @@ La página se actualiza sola (Firebase realtime listener). No necesita push a Gi
 - El ID debe ser kebab-case del nombre (ej: "La Sole" → "la-sole")
 - Si el restaurante ya existe, el PUT sobreescribe — útil para actualizar datos
 - Para eliminar: `curl -X DELETE "https://cali-gastro-default-rtdb.firebaseio.com/cali-gastro/restaurants/[ID].json"`
+- **lat/lng son necesarios** para que el restaurante aparezca en el mapa
 
 ## Taxonomía de tags
 
@@ -102,12 +117,19 @@ $ (<40K) · $$ (40K–70K) · $$$ (70K–120K) · $$$$ (>120K)
 ```
 cali-gastro/
 ├── restaurants/
-│   ├── {id}/  → datos públicos del restaurante
+│   ├── {id}/  → datos públicos + lat/lng
 │   └── ...
 └── personal/
     ├── {id}/  → status, myRating, notes, dateVisited, etc.
     └── ...
 ```
+
+## Design System: Earth & Terracotta
+
+- **Fonts:** Newsreader (headlines) + Be Vietnam Pro (body/labels)
+- **Colors:** Terracotta (#9b3f25) + Olive (#5c614d) + Cream (#fff8f6)
+- **Icons:** Material Symbols Outlined
+- **Map:** Leaflet.js + OpenStreetMap tiles
 
 ## Desarrollo
 

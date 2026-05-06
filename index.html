@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cali Gastro</title>
+  <title>Esquina Foodie</title>
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@500;600&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -57,6 +59,7 @@
       line-height: 1.6;
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
+      padding-bottom: 72px;
     }
 
     ::selection {
@@ -710,7 +713,7 @@
     /* ---- FAB ---- */
     .fab {
       position: fixed;
-      bottom: 32px;
+      bottom: 92px;
       right: 32px;
       width: 56px;
       height: 56px;
@@ -822,6 +825,47 @@
       font-size: 14px;
     }
 
+    /* ---- Bottom Nav ---- */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border-top: 1px solid var(--outline-variant);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+      z-index: 1000;
+    }
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      cursor: pointer;
+      padding: 4px 16px;
+      border: none;
+      background: none;
+      transition: color 0.15s;
+    }
+    .bottom-nav-item .material-symbols-outlined {
+      font-size: 24px;
+    }
+    .bottom-nav-item span:last-child {
+      font-family: var(--font-body);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* ---- Leaflet ---- */
+    .leaflet-container { font-family: var(--font-body); }
+    .leaflet-popup-content-wrapper { border-radius: var(--radius); box-shadow: var(--shadow-soft); }
+    .leaflet-popup-tip { display: none; }
+
     /* ---- Responsive ---- */
     @media (max-width: 768px) {
       .app { padding: 24px 16px; }
@@ -845,27 +889,27 @@
 <body>
   <div id="root"></div>
   <script type="text/babel">
-    const { useState, useEffect, useMemo, useCallback } = React;
+    const { useState, useEffect, useMemo, useCallback, useRef } = React;
 
     const DEFAULT_RESTAURANTS = [
-      { id: "odiseo-bistro", name: "Odiseo Bistro", zone: "Granada", address: "Av. 9 Norte #10-107, Granada, Cali", cuisine: "Mediterránea / Autor", tags: ["mediterránea","de-autor","fine-dining","romántico"], priceTier: "$$$", priceRange: "$80K–90K", priceMin: 80, priceMax: 90, rating: 4.7, reviews: 1671, highlight: "Coliflor horneado, arroz caldoso de mariscos", vibe: "Noir, atmosférico", reserva: true, closedDay: "Dom (solo almuerzo)", instagram: null },
-      { id: "platillos-voladores", name: "Platillos Voladores", zone: "Centenario", address: "Av. 3 Norte #7-19, Centenario, Cali", cuisine: "Fusión colombo-asiática", tags: ["asiática","colombiana","fusión","romántico"], priceTier: "$$", priceRange: "$56K–77K", priceMin: 56, priceMax: 77, rating: 4.7, reviews: 3610, highlight: "Ceviche con marañón, lomo Yin Yang", vibe: "Sofisticado, jardín con luciérnagas", reserva: true, closedDay: "Domingo", instagram: null },
-      { id: "antigua-contemporanea", name: "Antigua Contemporánea", zone: "San Antonio", address: "Carrera 10 #1-39, San Antonio, Cali", cuisine: "Internacional / Fusión Pacífico", tags: ["internacional","fusión","mariscos","romántico"], priceTier: "$$$", priceRange: "$60K–88K", priceMin: 60, priceMax: 88, rating: 4.7, reviews: 2020, highlight: "Pulpo, corvina contemporánea, salmón Montenegro", vibe: "Casa colonial con jardines, romántico", reserva: true, closedDay: "Domingo", instagram: null },
-      { id: "la-comitiva", name: "La Comitiva", zone: "San Fernando", address: "Calle 4 #34-32, San Fernando, Cali", cuisine: "Colombiana contemporánea", tags: ["colombiana","fusión","coctelería","para-grupos"], priceTier: "$$", priceRange: "$55K–80K", priceMin: 55, priceMax: 80, rating: 4.7, reviews: 2368, highlight: "Ceviche mixto, arrechera, cócteles temáticos", vibe: "Casa antigua, jardín mágico, bar escondido", reserva: true, closedDay: "Abierto siempre", instagram: null },
-      { id: "sonoma", name: "Sonoma", zone: "El Peñón", address: "Carrera 3A Oeste #3-13, El Peñón, Cali", cuisine: "Peruana", tags: ["peruana","tradicional","mariscos"], priceTier: "$$", priceRange: "$50K–75K", priceMin: 50, priceMax: 75, rating: 4.7, reviews: 724, highlight: "Ceviche, lomo saltado, corvina a la chorrillana", vibe: "Acogedor, elegante sin pose", reserva: true, closedDay: "Dom (solo almuerzo)", instagram: null },
-      { id: "hacienda-del-bosque", name: "Hacienda del Bosque", zone: "Oeste (Río Cali)", address: "Carrera 2 Oeste #14-250, Cali", cuisine: "Fusión valluna / Autor", tags: ["colombiana","de-autor","fusión","mariscos","romántico"], priceTier: "$$$", priceRange: "$70K–100K+", priceMin: 70, priceMax: 100, rating: 4.7, reviews: 2786, highlight: "Mero encocado, acocado de mariscos", vibe: "Hacienda del s.XIX, río, naturaleza", reserva: true, closedDay: "Lunes", instagram: null },
-      { id: "storia-damore", name: "Storia D'Amore", zone: "Granada", address: "Av. 9N #14N-46, Granada, Cali", cuisine: "Italiana", tags: ["italiana","pastas","para-grupos"], priceTier: "$$", priceRange: "$50K–75K", priceMin: 50, priceMax: 75, rating: 4.7, reviews: 7865, highlight: "Pastas, gelato de pistacho, tiramisú", vibe: "Decoración IG, animado", reserva: false, closedDay: "Abierto siempre", instagram: null },
-      { id: "faro", name: "Faró", zone: "Granada / El Peñón", address: "Carrera 3A Oeste #3-39, El Peñón, Cali", cuisine: "Mediterránea", tags: ["mediterránea","música-en-vivo","romántico"], priceTier: "$$", priceRange: "$55K–85K", priceMin: 55, priceMax: 85, rating: 4.5, reviews: 1759, highlight: "Salmón con macadamia, música en vivo", vibe: "Terraza elegante, velas", reserva: true, closedDay: "Dom (solo almuerzo)", instagram: null },
-      { id: "citadino", name: "Citadino", zone: "El Peñón", address: "Calle 1 Oeste #2-24, El Peñón, Cali", cuisine: "Fusión / Coctelería", tags: ["fusión","coctelería","fine-dining"], priceTier: "$$", priceRange: "$50K–80K", priceMin: 50, priceMax: 80, rating: 4.4, reviews: 351, highlight: "Pulpo con babaganoush, steak con puré", vibe: "Tipo lobby bar 5 estrellas, DJ", reserva: true, closedDay: "Domingo", instagram: null },
-      { id: "la-boheme", name: "La Bohème", zone: "San Antonio", address: "Calle 1 #6-09, San Antonio, Cali", cuisine: "Latina / Coctelería", tags: ["internacional","coctelería","mirador"], priceTier: "$$", priceRange: "$45K–75K", priceMin: 45, priceMax: 75, rating: 4.4, reviews: 2448, highlight: "Bocconcini, vista panorámica de Cali", vibe: "Lounge con vista, cócteles de autor", reserva: true, closedDay: "Abierto siempre", instagram: null },
-      { id: "patio-santo", name: "Patio Santo", zone: "Ciudad Jardín", address: "Calle 18 #105-52, Ciudad Jardín, Cali", cuisine: "Mediterránea / Peruana", tags: ["mediterránea","peruana","música-en-vivo","para-grupos"], priceTier: "$$", priceRange: "$55K–85K", priceMin: 55, priceMax: 85, rating: 4.5, reviews: 2369, highlight: "Shows en vivo, rosé sangría, mariscos", vibe: "Patio amplio, shows, festivo-elegante", reserva: true, closedDay: "Domingo", instagram: null },
-      { id: "furtivo", name: "Furtivo", zone: "El Peñón", address: "Calle 1 Oeste #1-32, El Peñón, Cali", cuisine: "Nikkei / Speakeasy", tags: ["japonesa","fusión","speakeasy","coctelería"], priceTier: "$$", priceRange: "$50K–80K", priceMin: 50, priceMax: 80, rating: 4.8, reviews: 150, highlight: "Ceviches nikkei, sushi rolls, cócteles de autor", vibe: "Speakeasy años 20, entrada oculta, jazz", reserva: true, closedDay: "Abierto siempre", instagram: "furtivocali" },
-      { id: "palomulata", name: "Palomulata", zone: "La Flora (Norte)", address: "Calle 38 Norte #4BN-09, La Flora, Cali", cuisine: "Parrilla de autor", tags: ["parrilla","de-autor","fine-dining"], priceTier: "$$$$", priceRange: "$100K–200K", priceMin: 100, priceMax: 200, rating: 4.9, reviews: 1700, highlight: "Tomahawk, Short Ribs 8h, Empanadas Palomulata", vibe: "Elegante boutique, iluminación cálida", reserva: true, closedDay: "Dom (horario reducido)", instagram: "palomulata" },
-      { id: "astro-soda", name: "Astro Soda", zone: "Granada", address: "Av. 9 Norte #18N-25, Granada, Cali", cuisine: "Bar gastronómico", tags: ["bar-gastronómico","coctelería","casual"], priceTier: "$", priceRange: "$35K–55K", priceMin: 35, priceMax: 55, rating: 5.0, reviews: 88, highlight: "Pandebonos con mermelada, cóctel Antares con viche", vibe: "Retro-futurista 70s-80s, Hi-Fi, funky-cósmico", reserva: true, closedDay: "Abierto siempre", instagram: "astro.soda" },
-      { id: "izumi", name: "Izumi", zone: "Granada", address: "Av. 9 Nte. #17 Norte-11, Granada, Cali", cuisine: "Japonesa / Nikkei fusión", tags: ["japonesa","fusión","de-autor","coctelería"], priceTier: "$$$", priceRange: "$50K–100K", priceMin: 50, priceMax: 100, rating: 4.9, reviews: 867, highlight: "Costillas Miso 18h, Gunkan Foie Gras, Yakimeshi", vibe: "Elegante, trendy, rooftop, DJ", reserva: true, closedDay: "Abierto siempre", instagram: "izumirestaurantco" },
-      { id: "macanudo-hifi", name: "Macanudo HiFi", zone: "Granada (Norte)", address: "Av. 9 Norte #15A Norte-31, Granada, Cali", cuisine: "Pizza + Coctelería", tags: ["pizzería","bar-gastronómico","coctelería","casual"], priceTier: "$", priceRange: "$30K–55K", priceMin: 30, priceMax: 55, rating: null, reviews: 0, highlight: "Pizzas artesanales, cócteles de autor", vibe: "Listening bar Hi-Fi, house music, estético", reserva: false, closedDay: "Domingo y Lunes", instagram: "macanudo.hifi" },
-      { id: "bohio", name: "Bohío", zone: "Granada", address: "Av. 9 Nte. #15N-40, Granada, Cali", cuisine: "Criolla del Nuevo Mundo", tags: ["colombiana","de-autor","música-en-vivo","pet-friendly"], priceTier: "$$$", priceRange: "$60K–140K", priceMin: 60, priceMax: 140, rating: 4.4, reviews: 638, highlight: "Medallones de lomo, ceviche, arroz atollado", vibe: "Elegante-acogedor, música en vivo, terraza", reserva: true, closedDay: "Abierto siempre", instagram: "bohiorestaurante.cali" },
-      { id: "un-jardin-en-el-cielo", name: "Un Jardín en el Cielo", zone: "Cristo Rey (mirador)", address: "Km 2 Vía a Cristo Rey, Cali", cuisine: "Casual / Fusión", tags: ["casual","mirador","romántico","pet-friendly"], priceTier: "$", priceRange: "$28K–50K", priceMin: 28, priceMax: 50, rating: 3.9, reviews: 668, highlight: "Fundido de champiñones, pizza signature, vista panorámica", vibe: "Mirador al aire libre, atardecer, brisa", reserva: true, closedDay: "Lunes y Martes", instagram: "unjardinenelcielo" },
+      { id: "odiseo-bistro", name: "Odiseo Bistro", zone: "Granada", address: "Av. 9 Norte #10-107, Granada, Cali", cuisine: "Mediterránea / Autor", tags: ["mediterránea","de-autor","fine-dining","romántico"], priceTier: "$$$", priceRange: "$80K–90K", priceMin: 80, priceMax: 90, rating: 4.7, reviews: 1671, highlight: "Coliflor horneado, arroz caldoso de mariscos", vibe: "Noir, atmosférico", reserva: true, closedDay: "Dom (solo almuerzo)", instagram: null, lat: 3.4573, lng: -76.5360 },
+      { id: "platillos-voladores", name: "Platillos Voladores", zone: "Centenario", address: "Av. 3 Norte #7-19, Centenario, Cali", cuisine: "Fusión colombo-asiática", tags: ["asiática","colombiana","fusión","romántico"], priceTier: "$$", priceRange: "$56K–77K", priceMin: 56, priceMax: 77, rating: 4.7, reviews: 3610, highlight: "Ceviche con marañón, lomo Yin Yang", vibe: "Sofisticado, jardín con luciérnagas", reserva: true, closedDay: "Domingo", instagram: null, lat: 3.4536, lng: -76.5372 },
+      { id: "antigua-contemporanea", name: "Antigua Contemporánea", zone: "San Antonio", address: "Carrera 10 #1-39, San Antonio, Cali", cuisine: "Internacional / Fusión Pacífico", tags: ["internacional","fusión","mariscos","romántico"], priceTier: "$$$", priceRange: "$60K–88K", priceMin: 60, priceMax: 88, rating: 4.7, reviews: 2020, highlight: "Pulpo, corvina contemporánea, salmón Montenegro", vibe: "Casa colonial con jardines, romántico", reserva: true, closedDay: "Domingo", instagram: null, lat: 3.4466, lng: -76.5401 },
+      { id: "la-comitiva", name: "La Comitiva", zone: "San Fernando", address: "Calle 4 #34-32, San Fernando, Cali", cuisine: "Colombiana contemporánea", tags: ["colombiana","fusión","coctelería","para-grupos"], priceTier: "$$", priceRange: "$55K–80K", priceMin: 55, priceMax: 80, rating: 4.7, reviews: 2368, highlight: "Ceviche mixto, arrechera, cócteles temáticos", vibe: "Casa antigua, jardín mágico, bar escondido", reserva: true, closedDay: "Abierto siempre", instagram: null, lat: 3.4346, lng: -76.5450 },
+      { id: "sonoma", name: "Sonoma", zone: "El Peñón", address: "Carrera 3A Oeste #3-13, El Peñón, Cali", cuisine: "Peruana", tags: ["peruana","tradicional","mariscos"], priceTier: "$$", priceRange: "$50K–75K", priceMin: 50, priceMax: 75, rating: 4.7, reviews: 724, highlight: "Ceviche, lomo saltado, corvina a la chorrillana", vibe: "Acogedor, elegante sin pose", reserva: true, closedDay: "Dom (solo almuerzo)", instagram: null, lat: 3.4493, lng: -76.5430 },
+      { id: "hacienda-del-bosque", name: "Hacienda del Bosque", zone: "Oeste (Río Cali)", address: "Carrera 2 Oeste #14-250, Cali", cuisine: "Fusión valluna / Autor", tags: ["colombiana","de-autor","fusión","mariscos","romántico"], priceTier: "$$$", priceRange: "$70K–100K+", priceMin: 70, priceMax: 100, rating: 4.7, reviews: 2786, highlight: "Mero encocado, acocado de mariscos", vibe: "Hacienda del s.XIX, río, naturaleza", reserva: true, closedDay: "Lunes", instagram: null, lat: 3.4478, lng: -76.5602 },
+      { id: "storia-damore", name: "Storia D'Amore", zone: "Granada", address: "Av. 9N #14N-46, Granada, Cali", cuisine: "Italiana", tags: ["italiana","pastas","para-grupos"], priceTier: "$$", priceRange: "$50K–75K", priceMin: 50, priceMax: 75, rating: 4.7, reviews: 7865, highlight: "Pastas, gelato de pistacho, tiramisú", vibe: "Decoración IG, animado", reserva: false, closedDay: "Abierto siempre", instagram: null, lat: 3.4593, lng: -76.5345 },
+      { id: "faro", name: "Faró", zone: "Granada / El Peñón", address: "Carrera 3A Oeste #3-39, El Peñón, Cali", cuisine: "Mediterránea", tags: ["mediterránea","música-en-vivo","romántico"], priceTier: "$$", priceRange: "$55K–85K", priceMin: 55, priceMax: 85, rating: 4.5, reviews: 1759, highlight: "Salmón con macadamia, música en vivo", vibe: "Terraza elegante, velas", reserva: true, closedDay: "Dom (solo almuerzo)", instagram: null, lat: 3.4493, lng: -76.5433 },
+      { id: "citadino", name: "Citadino", zone: "El Peñón", address: "Calle 1 Oeste #2-24, El Peñón, Cali", cuisine: "Fusión / Coctelería", tags: ["fusión","coctelería","fine-dining"], priceTier: "$$", priceRange: "$50K–80K", priceMin: 50, priceMax: 80, rating: 4.4, reviews: 351, highlight: "Pulpo con babaganoush, steak con puré", vibe: "Tipo lobby bar 5 estrellas, DJ", reserva: true, closedDay: "Domingo", instagram: null, lat: 3.4501, lng: -76.5411 },
+      { id: "la-boheme", name: "La Bohème", zone: "San Antonio", address: "Calle 1 #6-09, San Antonio, Cali", cuisine: "Latina / Coctelería", tags: ["internacional","coctelería","mirador"], priceTier: "$$", priceRange: "$45K–75K", priceMin: 45, priceMax: 75, rating: 4.4, reviews: 2448, highlight: "Bocconcini, vista panorámica de Cali", vibe: "Lounge con vista, cócteles de autor", reserva: true, closedDay: "Abierto siempre", instagram: null, lat: 3.4471, lng: -76.5404 },
+      { id: "patio-santo", name: "Patio Santo", zone: "Ciudad Jardín", address: "Calle 18 #105-52, Ciudad Jardín, Cali", cuisine: "Mediterránea / Peruana", tags: ["mediterránea","peruana","música-en-vivo","para-grupos"], priceTier: "$$", priceRange: "$55K–85K", priceMin: 55, priceMax: 85, rating: 4.5, reviews: 2369, highlight: "Shows en vivo, rosé sangría, mariscos", vibe: "Patio amplio, shows, festivo-elegante", reserva: true, closedDay: "Domingo", instagram: null, lat: 3.3633, lng: -76.5320 },
+      { id: "furtivo", name: "Furtivo", zone: "El Peñón", address: "Calle 1 Oeste #1-32, El Peñón, Cali", cuisine: "Nikkei / Speakeasy", tags: ["japonesa","fusión","speakeasy","coctelería"], priceTier: "$$", priceRange: "$50K–80K", priceMin: 50, priceMax: 80, rating: 4.8, reviews: 150, highlight: "Ceviches nikkei, sushi rolls, cócteles de autor", vibe: "Speakeasy años 20, entrada oculta, jazz", reserva: true, closedDay: "Abierto siempre", instagram: "furtivocali", lat: 3.4507, lng: -76.5410 },
+      { id: "palomulata", name: "Palomulata", zone: "La Flora (Norte)", address: "Calle 38 Norte #4BN-09, La Flora, Cali", cuisine: "Parrilla de autor", tags: ["parrilla","de-autor","fine-dining"], priceTier: "$$$$", priceRange: "$100K–200K", priceMin: 100, priceMax: 200, rating: 4.9, reviews: 1700, highlight: "Tomahawk, Short Ribs 8h, Empanadas Palomulata", vibe: "Elegante boutique, iluminación cálida", reserva: true, closedDay: "Dom (horario reducido)", instagram: "palomulata", lat: 3.4768, lng: -76.5249 },
+      { id: "astro-soda", name: "Astro Soda", zone: "Granada", address: "Av. 9 Norte #18N-25, Granada, Cali", cuisine: "Bar gastronómico", tags: ["bar-gastronómico","coctelería","casual"], priceTier: "$", priceRange: "$35K–55K", priceMin: 35, priceMax: 55, rating: 5.0, reviews: 88, highlight: "Pandebonos con mermelada, cóctel Antares con viche", vibe: "Retro-futurista 70s-80s, Hi-Fi, funky-cósmico", reserva: true, closedDay: "Abierto siempre", instagram: "astro.soda", lat: 3.4619, lng: -76.5325 },
+      { id: "izumi", name: "Izumi", zone: "Granada", address: "Av. 9 Nte. #17 Norte-11, Granada, Cali", cuisine: "Japonesa / Nikkei fusión", tags: ["japonesa","fusión","de-autor","coctelería"], priceTier: "$$$", priceRange: "$50K–100K", priceMin: 50, priceMax: 100, rating: 4.9, reviews: 867, highlight: "Costillas Miso 18h, Gunkan Foie Gras, Yakimeshi", vibe: "Elegante, trendy, rooftop, DJ", reserva: true, closedDay: "Abierto siempre", instagram: "izumirestaurantco", lat: 3.4613, lng: -76.5329 },
+      { id: "macanudo-hifi", name: "Macanudo HiFi", zone: "Granada (Norte)", address: "Av. 9 Norte #15A Norte-31, Granada, Cali", cuisine: "Pizza + Coctelería", tags: ["pizzería","bar-gastronómico","coctelería","casual"], priceTier: "$", priceRange: "$30K–55K", priceMin: 30, priceMax: 55, rating: null, reviews: 0, highlight: "Pizzas artesanales, cócteles de autor", vibe: "Listening bar Hi-Fi, house music, estético", reserva: false, closedDay: "Domingo y Lunes", instagram: "macanudo.hifi", lat: 3.4601, lng: -76.5339 },
+      { id: "bohio", name: "Bohío", zone: "Granada", address: "Av. 9 Nte. #15N-40, Granada, Cali", cuisine: "Criolla del Nuevo Mundo", tags: ["colombiana","de-autor","música-en-vivo","pet-friendly"], priceTier: "$$$", priceRange: "$60K–140K", priceMin: 60, priceMax: 140, rating: 4.4, reviews: 638, highlight: "Medallones de lomo, ceviche, arroz atollado", vibe: "Elegante-acogedor, música en vivo, terraza", reserva: true, closedDay: "Abierto siempre", instagram: "bohiorestaurante.cali", lat: 3.4596, lng: -76.5339 },
+      { id: "un-jardin-en-el-cielo", name: "Un Jardín en el Cielo", zone: "Cristo Rey (mirador)", address: "Km 2 Vía a Cristo Rey, Cali", cuisine: "Casual / Fusión", tags: ["casual","mirador","romántico","pet-friendly"], priceTier: "$", priceRange: "$28K–50K", priceMin: 28, priceMax: 50, rating: 3.9, reviews: 668, highlight: "Fundido de champiñones, pizza signature, vista panorámica", vibe: "Mirador al aire libre, atardecer, brisa", reserva: true, closedDay: "Lunes y Martes", instagram: "unjardinenelcielo", lat: 3.4386, lng: -76.5551 },
     ];
 
     const dbRef = db.ref('cali-gastro');
@@ -1229,9 +1273,363 @@
       );
     }
 
+    /* ---- Bottom Navigation ---- */
+    function BottomNav({ page, onNavigate }) {
+      const items = [
+        { key: 'home', icon: 'home', label: 'Inicio' },
+        { key: 'list', icon: 'restaurant', label: 'Restaurantes' },
+        { key: 'map', icon: 'map', label: 'Mapa' },
+      ];
+      return (
+        <div className="bottom-nav">
+          {items.map(item => (
+            <button
+              key={item.key}
+              className="bottom-nav-item"
+              style={{ color: page === item.key ? '#9b3f25' : '#89726c' }}
+              onClick={() => onNavigate(item.key)}
+            >
+              <span className="material-symbols-outlined">{item.icon}</span>
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
+      );
+    }
+
+    /* ---- Stat Card ---- */
+    function StatCard({ number, label, color }) {
+      return (
+        <div style={{
+          background: '#ffffff',
+          borderRadius: 12,
+          border: '1px solid var(--outline-variant)',
+          padding: 24,
+          textAlign: 'center'
+        }}>
+          <div style={{
+            fontFamily: 'var(--font-headline)',
+            fontSize: 32,
+            fontWeight: 600,
+            color: color
+          }}>{number}</div>
+          <div style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: 12,
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            color: 'var(--on-surface-variant)',
+            marginTop: 4
+          }}>{label}</div>
+        </div>
+      );
+    }
+
+    /* ---- Mini Card (for Homepage Destacados) ---- */
+    function MiniCard({ restaurant, personal, onClick }) {
+      const p = personal || {};
+      return (
+        <div
+          style={{
+            background: '#ffffff',
+            borderRadius: 12,
+            border: '1px solid var(--outline-variant)',
+            padding: 16,
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+          onClick={onClick}
+          onMouseEnter={e => { e.currentTarget.style.boxShadow = '0px 8px 32px rgba(26,26,26,0.07)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+          onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; }}
+        >
+          <div style={{ fontFamily: 'var(--font-headline)', fontSize: 16, fontWeight: 600, color: 'var(--on-surface)', marginBottom: 4 }}>{restaurant.name}</div>
+          <div style={{ fontSize: 13, color: 'var(--on-surface-variant)', marginBottom: 8 }}>{restaurant.zone} &middot; {restaurant.priceTier || '$$'}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+            {restaurant.rating && (
+              <span className="card-rating-badge">
+                <span className="star-icon">&#9733;</span>
+                {restaurant.rating}
+              </span>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {(restaurant.tags || []).slice(0, 2).map(t => <span key={t} className="tag-pill">{t}</span>)}
+          </div>
+        </div>
+      );
+    }
+
+    /* ---- Nav Card (for Homepage) ---- */
+    function NavCard({ icon, title, subtitle, onClick }) {
+      return (
+        <div
+          style={{
+            background: 'var(--surface-container)',
+            borderRadius: 12,
+            padding: 24,
+            cursor: 'pointer',
+            transition: 'transform 0.15s'
+          }}
+          onClick={onClick}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.02)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 32, color: '#9b3f25', marginBottom: 12, display: 'block' }}>{icon}</span>
+          <div style={{ fontFamily: 'var(--font-headline)', fontSize: 20, fontWeight: 600, color: 'var(--on-surface)', marginBottom: 4 }}>{title}</div>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--on-surface-variant)' }}>{subtitle}</div>
+        </div>
+      );
+    }
+
+    /* ---- Home Page ---- */
+    function HomePage({ stats, restaurants, personalData, onNavigate }) {
+      const topPicks = useMemo(() => {
+        const quieroIr = restaurants
+          .filter(r => (personalData[r.id] || {}).status === 'quiero-ir')
+          .sort((a, b) => (b.rating || 0) - (a.rating || 0));
+
+        if (quieroIr.length >= 3) return quieroIr.slice(0, 3);
+
+        const remaining = restaurants
+          .filter(r => !quieroIr.find(q => q.id === r.id))
+          .sort((a, b) => (b.rating || 0) - (a.rating || 0));
+
+        return [...quieroIr, ...remaining].slice(0, 3);
+      }, [restaurants, personalData]);
+
+      return (
+        <div style={{maxWidth:1200, margin:'0 auto', padding:'48px 32px 32px'}}>
+          <div style={{textAlign:'center', marginBottom:48}}>
+            <h1 style={{fontFamily:'var(--font-headline)', fontSize:42, fontWeight:600, color:'var(--primary)', letterSpacing:'-0.02em'}}>Esquina Foodie</h1>
+            <p style={{fontFamily:'var(--font-body)', fontSize:16, color:'var(--on-surface-variant)', marginTop:8}}>Tu gu&iacute;a personal de restaurantes en Cali</p>
+          </div>
+
+          <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginBottom:48}}>
+            <StatCard number={stats.total} label="Restaurantes" color="var(--primary)" />
+            <StatCard number={stats.quiero} label="Por visitar" color="var(--tertiary)" />
+            <StatCard number={stats.fui} label="Visitados" color="var(--secondary)" />
+          </div>
+
+          <h2 style={{fontFamily:'var(--font-headline)', fontSize:24, fontWeight:500, color:'var(--on-surface)', marginBottom:16}}>Destacados</h2>
+          <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))', gap:16, marginBottom:48}}>
+            {topPicks.map(r => (
+              <MiniCard key={r.id} restaurant={r} personal={personalData[r.id]} onClick={() => onNavigate('list')} />
+            ))}
+          </div>
+
+          <div style={{display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:16}}>
+            <NavCard icon="restaurant" title="Explorar" subtitle={`${stats.total} restaurantes`} onClick={() => onNavigate('list')} />
+            <NavCard icon="map" title="Mapa de Cali" subtitle="Ver ubicaciones" onClick={() => onNavigate('map')} />
+          </div>
+        </div>
+      );
+    }
+
+    /* ---- List Page ---- */
+    function ListPage({
+      stats, filtered, allTags, zones,
+      search, setSearch, tagFilter, setTagFilter,
+      zoneFilter, setZoneFilter, priceFilter, setPriceFilter,
+      statusFilter, setStatusFilter, view, setView,
+      sortBy, sortDesc, setSortBy, setSortDesc, handleSort,
+      personalData, setSelectedRestaurant, handleRate, handleStatusChange,
+      setShowAddModal
+    }) {
+      return (
+        <div className="app">
+          <div className="header">
+            <h1>Esquina Foodie</h1>
+            <div className="subtitle">{stats.total} RESTAURANTES</div>
+            <div className="stats">{stats.quiero} por visitar &middot; {stats.fui} visitados</div>
+          </div>
+
+          <div className="search-wrapper">
+            <span className="search-icon material-symbols-outlined">search</span>
+            <input
+              className="search-input"
+              placeholder="Buscar por nombre, cocina, zona..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </div>
+
+          <div className="chips-row">
+            <button
+              className={`chip ${tagFilter === '' ? 'active' : ''}`}
+              onClick={() => setTagFilter('')}
+            >Todos</button>
+            {allTags.map(t => (
+              <button
+                key={t}
+                className={`chip ${tagFilter === t ? 'active' : ''}`}
+                onClick={() => setTagFilter(tagFilter === t ? '' : t)}
+              >{t}</button>
+            ))}
+          </div>
+
+          <div className="filter-controls">
+            <select className="filter-select" value={zoneFilter} onChange={e => setZoneFilter(e.target.value)}>
+              {zones.map(z => <option key={z} value={z}>{z === 'Todas' ? 'Todas las zonas' : z}</option>)}
+            </select>
+            <select className="filter-select" value={priceFilter} onChange={e => setPriceFilter(e.target.value)}>
+              <option value="">Precio</option>
+              <option value="$">$ (&lt;40K)</option>
+              <option value="$$">$$ (40K–70K)</option>
+              <option value="$$$">$$$ (70K–120K)</option>
+              <option value="$$$$">$$$$ (&gt;120K)</option>
+            </select>
+            <div className="status-chips">
+              {[{key:'todos',label:'Todos'},{key:'quiero-ir',label:'Quiero ir'},{key:'ya-fui',label:'Ya fui'},{key:'no-interesa',label:'No me interesa'},{key:'sin-decidir',label:'Sin decidir'}].map(s => (
+                <button key={s.key} className={`status-chip ${statusFilter === s.key ? 'active' : ''}`} onClick={() => setStatusFilter(s.key)}>{s.label}</button>
+              ))}
+            </div>
+            <div style={{marginLeft:'auto'}}>
+              <div className="view-toggle">
+                <button className={`view-btn ${view === 'grid' ? 'active' : ''}`} onClick={() => setView('grid')}>Grid</button>
+                <button className={`view-btn ${view === 'table' ? 'active' : ''}`} onClick={() => setView('table')}>Tabla</button>
+              </div>
+            </div>
+          </div>
+
+          <div className="toolbar">
+            <span className="count">{filtered.length} restaurantes</span>
+            <select className="sort-select" value={`${sortBy}-${sortDesc?'desc':'asc'}`} onChange={e => {
+              const [key, dir] = e.target.value.split('-');
+              setSortBy(key);
+              setSortDesc(dir === 'desc');
+            }}>
+              <option value="rating-desc">Mayor rating</option>
+              <option value="rating-asc">Menor rating</option>
+              <option value="priceMin-asc">Menor precio</option>
+              <option value="priceMin-desc">Mayor precio</option>
+              <option value="reviews-desc">M&aacute;s rese&ntilde;as</option>
+              <option value="name-asc">Nombre A-Z</option>
+              <option value="name-desc">Nombre Z-A</option>
+            </select>
+          </div>
+
+          {view === 'grid' ? (
+            <div className="grid">
+              {filtered.map(r => (
+                <RestaurantCard
+                  key={r.id}
+                  restaurant={r}
+                  personal={personalData[r.id]}
+                  onClick={() => setSelectedRestaurant(r)}
+                  onRate={(val) => handleRate(r.id, val)}
+                  onStatusChange={handleStatusChange}
+                />
+              ))}
+            </div>
+          ) : (
+            <RestaurantTable
+              restaurants={filtered}
+              personalData={personalData}
+              onSelect={setSelectedRestaurant}
+              onRate={handleRate}
+              sortBy={sortBy}
+              sortDesc={sortDesc}
+              onSort={handleSort}
+            />
+          )}
+
+          {filtered.length === 0 && (
+            <div className="empty-state">
+              <div className="empty-icon">
+                <span className="material-symbols-outlined" style={{fontSize:48}}>restaurant</span>
+              </div>
+              <p>No hay restaurantes que coincidan con los filtros</p>
+            </div>
+          )}
+
+          <button className="fab" onClick={() => setShowAddModal(true)} title="Agregar restaurante">+</button>
+        </div>
+      );
+    }
+
+    /* ---- Map Page ---- */
+    function MapPage({ restaurants, personalData, onSelectRestaurant }) {
+      const mapRef = useRef(null);
+      const mapInstance = useRef(null);
+      const markersRef = useRef([]);
+      const [mapStatusFilter, setMapStatusFilter] = useState('todos');
+
+      useEffect(() => {
+        if (!mapInstance.current && mapRef.current) {
+          mapInstance.current = L.map(mapRef.current).setView([3.4516, -76.5320], 13);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap'
+          }).addTo(mapInstance.current);
+        }
+        return () => {};
+      }, []);
+
+      useEffect(() => {
+        if (!mapInstance.current) return;
+
+        markersRef.current.forEach(m => m.remove());
+        markersRef.current = [];
+
+        const filteredRestaurants = restaurants.filter(r => {
+          if (!r.lat || !r.lng) return false;
+          if (mapStatusFilter === 'todos') return true;
+          const status = (personalData[r.id] || {}).status || 'sin-decidir';
+          return status === mapStatusFilter;
+        });
+
+        filteredRestaurants.forEach(r => {
+          const status = (personalData[r.id] || {}).status || 'sin-decidir';
+          const color = status === 'quiero-ir' ? '#006765' : status === 'ya-fui' ? '#9b3f25' : '#89726c';
+
+          const icon = L.divIcon({
+            className: '',
+            html: '<div style="background:' + color + ';width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center"><span style="color:white;font-size:12px;font-weight:600">' + (r.priceTier ? r.priceTier.length : '') + '</span></div>',
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
+            popupAnchor: [0, -16]
+          });
+
+          const marker = L.marker([r.lat, r.lng], { icon: icon }).addTo(mapInstance.current);
+
+          const popupContent = '<div style="font-family:\'Be Vietnam Pro\',sans-serif;min-width:180px">' +
+            '<div style="font-family:\'Newsreader\',serif;font-size:16px;font-weight:600;color:#231917;margin-bottom:4px">' + r.name + '</div>' +
+            '<div style="font-size:12px;color:#56423d;margin-bottom:6px">' + r.zone + ' &middot; ' + (r.priceTier || '') + '</div>' +
+            (r.rating ? '<div style="font-size:12px;color:#9b3f25;margin-bottom:6px">&#9733; ' + r.rating + ' (' + r.reviews + ')</div>' : '') +
+            '<div style="font-size:11px;color:#89726c;margin-bottom:8px">' + r.cuisine + '</div>' +
+            '<button onclick="window.__openDetail__(\'' + r.id + '\')" style="background:#9b3f25;color:white;border:none;padding:6px 12px;border-radius:8px;font-size:11px;cursor:pointer;width:100%">Ver detalle</button>' +
+            '</div>';
+
+          marker.bindPopup(popupContent);
+          markersRef.current.push(marker);
+        });
+      }, [restaurants, personalData, mapStatusFilter]);
+
+      return (
+        <div style={{display:'flex', flexDirection:'column', height:'calc(100vh - 72px)'}}>
+          <div style={{padding:'12px 16px', display:'flex', gap:8, overflowX:'auto', background:'var(--surface)', borderBottom:'1px solid var(--outline-variant)'}}>
+            {['todos','quiero-ir','ya-fui','sin-decidir','no-interesa'].map(s => (
+              <button key={s} onClick={() => setMapStatusFilter(s)} style={{
+                padding:'6px 14px', borderRadius:9999, border:'1px solid', fontSize:11, fontWeight:600, cursor:'pointer', whiteSpace:'nowrap',
+                fontFamily:'var(--font-body)', textTransform:'uppercase', letterSpacing:'0.08em',
+                background: mapStatusFilter === s ? 'var(--primary)' : 'transparent',
+                color: mapStatusFilter === s ? 'white' : 'var(--on-surface-variant)',
+                borderColor: mapStatusFilter === s ? 'var(--primary)' : 'var(--outline-variant)'
+              }}>
+                {s === 'todos' ? 'Todos' : s === 'quiero-ir' ? 'Quiero ir' : s === 'ya-fui' ? 'Ya fui' : s === 'sin-decidir' ? 'Sin decidir' : 'No me interesa'}
+              </button>
+            ))}
+          </div>
+          <div ref={mapRef} style={{flex:1}} />
+        </div>
+      );
+    }
+
+    /* ---- Main App ---- */
     function App() {
       const [data, setData] = useState({ restaurants: [], personal: {} });
       const [loading, setLoading] = useState(true);
+      const [page, setPage] = useState('home');
       const [view, setView] = useState('grid');
       const [search, setSearch] = useState('');
       const [zoneFilter, setZoneFilter] = useState('Todas');
@@ -1257,6 +1655,13 @@
         });
         return () => dbRef.off();
       }, []);
+
+      useEffect(() => {
+        window.__openDetail__ = (id) => {
+          const r = data.restaurants.find(r => r.id === id);
+          if (r) setSelectedRestaurant(r);
+        };
+      }, [data.restaurants]);
 
       const zones = useMemo(() => {
         const z = [...new Set(data.restaurants.map(r => r.zone))];
@@ -1340,119 +1745,60 @@
 
       if (loading) return (
         <div className="app" style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'60vh'}}>
-          <h1 style={{fontFamily:'var(--font-headline)', fontSize:32, color:'var(--primary)', fontWeight:600}}>Cali Gastro</h1>
+          <h1 style={{fontFamily:'var(--font-headline)', fontSize:32, color:'var(--primary)', fontWeight:600}}>Esquina Foodie</h1>
           <p style={{color:'var(--on-surface-variant)', fontSize:14, marginTop:8}}>Cargando restaurantes...</p>
         </div>
       );
 
       return (
-        <div className="app">
-          <div className="header">
-            <h1>Cali Gastro</h1>
-            <div className="subtitle">{stats.total} RESTAURANTES</div>
-            <div className="stats">{stats.quiero} por visitar &middot; {stats.fui} visitados</div>
-          </div>
-
-          <div className="search-wrapper">
-            <span className="search-icon material-symbols-outlined">search</span>
-            <input
-              className="search-input"
-              placeholder="Buscar por nombre, cocina, zona..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-          </div>
-
-          <div className="chips-row">
-            <button
-              className={`chip ${tagFilter === '' ? 'active' : ''}`}
-              onClick={() => setTagFilter('')}
-            >Todos</button>
-            {allTags.map(t => (
-              <button
-                key={t}
-                className={`chip ${tagFilter === t ? 'active' : ''}`}
-                onClick={() => setTagFilter(tagFilter === t ? '' : t)}
-              >{t}</button>
-            ))}
-          </div>
-
-          <div className="filter-controls">
-            <select className="filter-select" value={zoneFilter} onChange={e => setZoneFilter(e.target.value)}>
-              {zones.map(z => <option key={z} value={z}>{z === 'Todas' ? 'Todas las zonas' : z}</option>)}
-            </select>
-            <select className="filter-select" value={priceFilter} onChange={e => setPriceFilter(e.target.value)}>
-              <option value="">Precio</option>
-              <option value="$">$ (&lt;40K)</option>
-              <option value="$$">$$ (40K–70K)</option>
-              <option value="$$$">$$$ (70K–120K)</option>
-              <option value="$$$$">$$$$ (&gt;120K)</option>
-            </select>
-            <div className="status-chips">
-              {[{key:'todos',label:'Todos'},{key:'quiero-ir',label:'Quiero ir'},{key:'ya-fui',label:'Ya fui'},{key:'no-interesa',label:'No me interesa'},{key:'sin-decidir',label:'Sin decidir'}].map(s => (
-                <button key={s.key} className={`status-chip ${statusFilter === s.key ? 'active' : ''}`} onClick={() => setStatusFilter(s.key)}>{s.label}</button>
-              ))}
-            </div>
-            <div style={{marginLeft:'auto'}}>
-              <div className="view-toggle">
-                <button className={`view-btn ${view === 'grid' ? 'active' : ''}`} onClick={() => setView('grid')}>Grid</button>
-                <button className={`view-btn ${view === 'table' ? 'active' : ''}`} onClick={() => setView('table')}>Tabla</button>
-              </div>
-            </div>
-          </div>
-
-          <div className="toolbar">
-            <span className="count">{filtered.length} restaurantes</span>
-            <select className="sort-select" value={`${sortBy}-${sortDesc?'desc':'asc'}`} onChange={e => {
-              const [key, dir] = e.target.value.split('-');
-              setSortBy(key);
-              setSortDesc(dir === 'desc');
-            }}>
-              <option value="rating-desc">Mayor rating</option>
-              <option value="rating-asc">Menor rating</option>
-              <option value="priceMin-asc">Menor precio</option>
-              <option value="priceMin-desc">Mayor precio</option>
-              <option value="reviews-desc">M&aacute;s rese&ntilde;as</option>
-              <option value="name-asc">Nombre A-Z</option>
-              <option value="name-desc">Nombre Z-A</option>
-            </select>
-          </div>
-
-          {view === 'grid' ? (
-            <div className="grid">
-              {filtered.map(r => (
-                <RestaurantCard
-                  key={r.id}
-                  restaurant={r}
-                  personal={data.personal[r.id]}
-                  onClick={() => setSelectedRestaurant(r)}
-                  onRate={(val) => handleRate(r.id, val)}
-                  onStatusChange={handleStatusChange}
-                />
-              ))}
-            </div>
-          ) : (
-            <RestaurantTable
-              restaurants={filtered}
+        <div>
+          {page === 'home' && (
+            <HomePage
+              stats={stats}
+              restaurants={data.restaurants}
               personalData={data.personal}
-              onSelect={setSelectedRestaurant}
-              onRate={handleRate}
+              onNavigate={setPage}
+            />
+          )}
+
+          {page === 'list' && (
+            <ListPage
+              stats={stats}
+              filtered={filtered}
+              allTags={allTags}
+              zones={zones}
+              search={search}
+              setSearch={setSearch}
+              tagFilter={tagFilter}
+              setTagFilter={setTagFilter}
+              zoneFilter={zoneFilter}
+              setZoneFilter={setZoneFilter}
+              priceFilter={priceFilter}
+              setPriceFilter={setPriceFilter}
+              statusFilter={statusFilter}
+              setStatusFilter={setStatusFilter}
+              view={view}
+              setView={setView}
               sortBy={sortBy}
               sortDesc={sortDesc}
-              onSort={handleSort}
+              setSortBy={setSortBy}
+              setSortDesc={setSortDesc}
+              handleSort={handleSort}
+              personalData={data.personal}
+              setSelectedRestaurant={setSelectedRestaurant}
+              handleRate={handleRate}
+              handleStatusChange={handleStatusChange}
+              setShowAddModal={setShowAddModal}
             />
           )}
 
-          {filtered.length === 0 && (
-            <div className="empty-state">
-              <div className="empty-icon">
-                <span className="material-symbols-outlined" style={{fontSize:48}}>restaurant</span>
-              </div>
-              <p>No hay restaurantes que coincidan con los filtros</p>
-            </div>
+          {page === 'map' && (
+            <MapPage
+              restaurants={data.restaurants}
+              personalData={data.personal}
+              onSelectRestaurant={setSelectedRestaurant}
+            />
           )}
-
-          <button className="fab" onClick={() => setShowAddModal(true)} title="Agregar restaurante">+</button>
 
           {selectedRestaurant && (
             <DetailPanel
@@ -1467,6 +1813,8 @@
           {showAddModal && (
             <AddModal onClose={() => setShowAddModal(false)} onAdd={handleAdd} />
           )}
+
+          <BottomNav page={page} onNavigate={setPage} />
         </div>
       );
     }
