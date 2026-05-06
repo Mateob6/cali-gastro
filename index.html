@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cali Gastro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyD-dTbFCte56n4kNpq_0R6Q4-Kcbc4UIQE",
+      authDomain: "cali-gastro.firebaseapp.com",
+      databaseURL: "https://cali-gastro-default-rtdb.firebaseio.com",
+      projectId: "cali-gastro",
+      storageBucket: "cali-gastro.firebasestorage.app",
+      messagingSenderId: "933093303244",
+      appId: "1:933093303244:web:aff1038c3aa5d1f7d07369"
+    });
+    var db = firebase.database();
+  </script>
+  <style>
+    :root {
+      --bg-primary: #faf8f5;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-hover: #f5f1eb;
+      --bg-elevated: #f0ebe3;
+      --text-primary: #2c2418;
+      --text-secondary: #5a4e3f;
+      --text-muted: #8b7d6b;
+      --accent-gold: #b8942e;
+      --accent-gold-dim: #9a7c24;
+      --accent-brown: #8b7355;
+      --accent-terracotta: #c4603f;
+      --status-quiero: #2d8a52;
+      --status-quiero-bg: rgba(45,138,82,0.1);
+      --status-fui: #b8942e;
+      --status-fui-bg: rgba(184,148,46,0.1);
+      --status-no: #8a7f77;
+      --status-no-bg: rgba(138,127,119,0.08);
+      --status-sin: #a09890;
+      --status-sin-bg: rgba(160,152,144,0.08);
+      --border: #e4ddd2;
+      --border-light: #ece6dc;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --radius-xs: 6px;
+      --shadow: 0 4px 24px rgba(44,36,24,0.08);
+      --shadow-lg: 0 12px 48px rgba(44,36,24,0.15);
+      --font-headline: 'Playfair Display', serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-label: 'Space Grotesk', sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    ::selection {
+      background: var(--accent-gold);
+      color: #fff;
+    }
+
+    input, select, textarea, button {
+      font-family: var(--font-body);
+      font-size: 13px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent-gold) !important;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    .app { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+    .header { margin-bottom: 28px; }
+    .header h1 {
+      font-family: var(--font-headline);
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+    .header .subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .header .stats {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      font-family: var(--font-label);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .header .stats .stat-num {
+      font-weight: 600;
+      color: var(--accent-gold);
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 16px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-light);
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 180px;
+      padding: 8px 12px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 13px;
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+
+    .filter-select {
+      padding: 8px 12px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      appearance: none;
+      padding-right: 28px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%237a6b55'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+
+    .status-chips {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .status-chip {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.15s;
+      font-family: var(--font-label);
+    }
+    .status-chip:hover { border-color: var(--accent-brown); color: var(--text-secondary); }
+    .status-chip.active { border-color: var(--accent-gold); color: var(--accent-gold); background: rgba(201,168,76,0.08); }
+
+    .view-toggle {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-primary);
+      border-radius: var(--radius-sm);
+      padding: 3px;
+      border: 1px solid var(--border-light);
+    }
+    .view-btn {
+      padding: 6px 14px;
+      border: none;
+      border-radius: var(--radius-xs);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.15s;
+      font-family: var(--font-label);
+    }
+    .view-btn.active { background: var(--bg-elevated); color: var(--accent-gold); }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .toolbar .count { font-size: 12px; color: var(--text-muted); }
+
+    .sort-select {
+      padding: 6px 10px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-xs);
+      color: var(--text-secondary);
+      font-size: 11px;
+      cursor: pointer;
+      font-family: var(--font-label);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .card:hover {
+      border-color: var(--accent-brown);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(44,36,24,0.1);
+    }
+    .card-name {
+      font-family: var(--font-headline);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .card-zone {
+      display: inline-block;
+      font-family: var(--font-label);
+      font-size: 10px;
+      font-weight: 500;
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      padding: 3px 10px;
+      border-radius: 12px;
+      letter-spacing: 0.3px;
+    }
+    .card-cuisine {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-top: 8px;
+    }
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .card-price {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .card-rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .card-rating .star { color: var(--accent-gold); }
+    .card-reviews {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .card-personal {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-light);
+    }
+    .card-status {
+      font-family: var(--font-label);
+      font-size: 10px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 12px;
+      letter-spacing: 0.3px;
+    }
+    .card-status.quiero-ir { background: var(--status-quiero-bg); color: var(--status-quiero); }
+    .card-status.ya-fui { background: var(--status-fui-bg); color: var(--status-fui); }
+    .card-status.no-interesa { background: var(--status-no-bg); color: var(--status-no); }
+    .card-status.sin-decidir { background: var(--status-sin-bg); color: var(--status-sin); }
+
+    .stars { display: flex; gap: 2px; }
+    .stars .star {
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--border);
+      transition: color 0.1s;
+    }
+    .stars .star.filled { color: var(--accent-gold); }
+    .stars .star:hover { color: var(--accent-gold-dim); }
+
+    /* Table view */
+    .table-wrap { overflow-x: auto; }
+    .rtable {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    .rtable th {
+      font-family: var(--font-label);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      padding: 12px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.15s;
+    }
+    .rtable th:hover { color: var(--accent-gold); }
+    .rtable td {
+      font-size: 13px;
+      color: var(--text-secondary);
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: middle;
+    }
+    .rtable tbody tr {
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .rtable tbody tr:hover { background: var(--bg-hover); }
+    .rtable .td-name {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    /* Detail flash card */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(44,36,24,0.4);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.2s;
+    }
+    .detail-panel {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      z-index: 101;
+      overflow-y: auto;
+      padding: 32px 28px;
+      width: 520px;
+      max-width: 92vw;
+      max-height: 85vh;
+      animation: scaleIn 0.2s ease-out;
+      box-shadow: var(--shadow-lg);
+    }
+    @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .detail-panel h2 {
+      font-family: var(--font-headline);
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .detail-section {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-light);
+    }
+    .detail-section h3 {
+      font-family: var(--font-label);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    .detail-row .label { color: var(--text-muted); font-weight: 500; min-width: 100px; }
+    .detail-row .value { color: var(--text-primary); text-align: right; flex: 1; }
+
+    .detail-input {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xs);
+      color: var(--text-primary);
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    .detail-input::placeholder { color: var(--text-muted); }
+    .detail-textarea {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xs);
+      color: var(--text-primary);
+      font-size: 13px;
+      margin-bottom: 12px;
+      resize: vertical;
+      min-height: 80px;
+      line-height: 1.5;
+    }
+    .detail-textarea::placeholder { color: var(--text-muted); }
+
+    .detail-status-chips {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .detail-status-chip {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.15s;
+      font-family: var(--font-label);
+    }
+    .detail-status-chip:hover { border-color: var(--accent-brown); }
+    .detail-status-chip.active-quiero { border-color: var(--status-quiero); color: var(--status-quiero); background: var(--status-quiero-bg); }
+    .detail-status-chip.active-fui { border-color: var(--status-fui); color: var(--status-fui); background: var(--status-fui-bg); }
+    .detail-status-chip.active-no { border-color: var(--status-no); color: var(--status-no); background: var(--status-no-bg); }
+    .detail-status-chip.active-sin { border-color: var(--status-sin); color: var(--status-sin); background: var(--status-sin-bg); }
+
+    .toggle-switch {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .toggle-track {
+      width: 40px;
+      height: 22px;
+      border-radius: 11px;
+      background: var(--border);
+      position: relative;
+      transition: background 0.2s;
+    }
+    .toggle-track.on { background: var(--accent-gold); }
+    .toggle-knob {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--text-primary);
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+    }
+    .toggle-track.on .toggle-knob { transform: translateX(18px); }
+
+    .btn-primary {
+      padding: 10px 24px;
+      background: var(--accent-gold);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-primary:hover { background: #d4b355; }
+    .btn-ghost {
+      padding: 10px 24px;
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-ghost:hover { border-color: var(--accent-brown); color: var(--text-primary); }
+    .btn-danger {
+      padding: 8px 16px;
+      background: transparent;
+      color: var(--accent-terracotta);
+      border: 1px solid var(--accent-terracotta);
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-danger:hover { background: rgba(212,119,90,0.1); }
+
+    .fab {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      color: var(--bg-primary);
+      border: none;
+      font-size: 24px;
+      font-weight: 300;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+      transition: all 0.2s;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(201,168,76,0.4); }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.2s;
+    }
+    .modal {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      width: 560px;
+      max-width: 90vw;
+      max-height: 85vh;
+      overflow-y: auto;
+      animation: scaleIn 0.2s ease-out;
+    }
+    @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .modal h2 {
+      font-family: var(--font-headline);
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-label {
+      display: block;
+      font-family: var(--font-label);
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .form-label .req { color: var(--accent-gold); }
+    .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xs);
+      color: var(--text-primary);
+      font-size: 13px;
+    }
+    .form-input::placeholder { color: var(--text-muted); }
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+    .form-row .form-group { flex: 1; }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-light);
+    }
+
+    @media (max-width: 768px) {
+      .app { padding: 16px 12px; }
+      .header h1 { font-size: 24px; }
+      .grid { grid-template-columns: 1fr; }
+      .filters { flex-direction: column; align-items: stretch; }
+      .search-input { min-width: unset; }
+      .detail-panel { width: 95vw; max-height: 90vh; }
+      .modal { width: 95vw; padding: 24px 16px; }
+      .form-row { flex-direction: column; gap: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useMemo, useCallback } = React;
+
+    const DEFAULT_RESTAURANTS = [
+      { id: "odiseo-bistro", name: "Odiseo Bistro", zone: "Granada", cuisine: "Mediterránea / Autor", priceRange: "$80K–90K", priceMin: 80, priceMax: 90, rating: 4.7, reviews: 1671, highlight: "Coliflor horneado, arroz caldoso de mariscos", vibe: "Noir, atmosférico", reserva: true, closedDay: "Dom (solo almuerzo)", instagram: null },
+      { id: "platillos-voladores", name: "Platillos Voladores", zone: "Centenario", cuisine: "Fusión colombo-asiática", priceRange: "$56K–77K", priceMin: 56, priceMax: 77, rating: 4.7, reviews: 3610, highlight: "Ceviche con marañón, lomo Yin Yang", vibe: "Sofisticado, jardín con luciérnagas", reserva: true, closedDay: "Domingo", instagram: null },
+      { id: "antigua-contemporanea", name: "Antigua Contemporánea", zone: "San Antonio", cuisine: "Internacional / Fusión Pacífico", priceRange: "$60K–88K", priceMin: 60, priceMax: 88, rating: 4.7, reviews: 2020, highlight: "Pulpo, corvina contemporánea, salmón Montenegro", vibe: "Casa colonial con jardines, romántico", reserva: true, closedDay: "Domingo", instagram: null },
+      { id: "la-comitiva", name: "La Comitiva", zone: "San Fernando", cuisine: "Colombiana contemporánea", priceRange: "$55K–80K", priceMin: 55, priceMax: 80, rating: 4.7, reviews: 2368, highlight: "Ceviche mixto, arrechera, cócteles temáticos", vibe: "Casa antigua, jardín mágico, bar escondido", reserva: true, closedDay: "Abierto siempre", instagram: null },
+      { id: "sonoma", name: "Sonoma", zone: "El Peñón", cuisine: "Peruana", priceRange: "$50K–75K", priceMin: 50, priceMax: 75, rating: 4.7, reviews: 724, highlight: "Ceviche, lomo saltado, corvina a la chorrillana", vibe: "Acogedor, elegante sin pose", reserva: true, closedDay: "Dom (solo almuerzo)", instagram: null },
+      { id: "hacienda-del-bosque", name: "Hacienda del Bosque", zone: "Oeste (Río Cali)", cuisine: "Fusión valluna / Autor", priceRange: "$70K–100K+", priceMin: 70, priceMax: 100, rating: 4.7, reviews: 2786, highlight: "Mero encocado, acocado de mariscos", vibe: "Hacienda del s.XIX, río, naturaleza", reserva: true, closedDay: "Lunes", instagram: null },
+      { id: "storia-damore", name: "Storia D'Amore", zone: "Granada", cuisine: "Italiana", priceRange: "$50K–75K", priceMin: 50, priceMax: 75, rating: 4.7, reviews: 7865, highlight: "Pastas, gelato de pistacho, tiramisú", vibe: "Decoración IG, animado", reserva: false, closedDay: "Abierto siempre", instagram: null },
+      { id: "faro", name: "Faró", zone: "Granada / El Peñón", cuisine: "Mediterránea", priceRange: "$55K–85K", priceMin: 55, priceMax: 85, rating: 4.5, reviews: 1759, highlight: "Salmón con macadamia, música en vivo", vibe: "Terraza elegante, velas", reserva: true, closedDay: "Dom (solo almuerzo)", instagram: null },
+      { id: "citadino", name: "Citadino", zone: "El Peñón", cuisine: "Fusión / Coctelería", priceRange: "$50K–80K", priceMin: 50, priceMax: 80, rating: 4.4, reviews: 351, highlight: "Pulpo con babaganoush, steak con puré", vibe: "Tipo lobby bar 5 estrellas, DJ", reserva: true, closedDay: "Domingo", instagram: null },
+      { id: "la-boheme", name: "La Bohème", zone: "San Antonio", cuisine: "Latina / Coctelería", priceRange: "$45K–75K", priceMin: 45, priceMax: 75, rating: 4.4, reviews: 2448, highlight: "Bocconcini, vista panorámica de Cali", vibe: "Lounge con vista, cócteles de autor", reserva: true, closedDay: "Abierto siempre", instagram: null },
+      { id: "patio-santo", name: "Patio Santo", zone: "Ciudad Jardín", cuisine: "Mediterránea / Peruana", priceRange: "$55K–85K", priceMin: 55, priceMax: 85, rating: 4.5, reviews: 2369, highlight: "Shows en vivo, rosé sangría, mariscos", vibe: "Patio amplio, shows, festivo-elegante", reserva: true, closedDay: "Domingo", instagram: null },
+      { id: "furtivo", name: "Furtivo", zone: "El Peñón", cuisine: "Nikkei / Speakeasy", priceRange: "$50K–80K", priceMin: 50, priceMax: 80, rating: 4.8, reviews: 150, highlight: "Ceviches nikkei, sushi rolls, cócteles de autor", vibe: "Speakeasy años 20, entrada oculta, jazz", reserva: true, closedDay: "Abierto siempre", instagram: "furtivocali" },
+      { id: "palomulata", name: "Palomulata", zone: "La Flora (Norte)", cuisine: "Parrilla de autor / Steakhouse", priceRange: "$100K–200K", priceMin: 100, priceMax: 200, rating: 4.9, reviews: 1700, highlight: "Tomahawk, Short Ribs 8h, Empanadas Palomulata", vibe: "Elegante boutique, iluminación cálida, atención personalizada", reserva: true, closedDay: "Dom (horario reducido)", instagram: "palomulata" },
+      { id: "astro-soda", name: "Astro Soda", zone: "Granada", cuisine: "Bar gastronómico / Retro-futurista", priceRange: "$35K–55K", priceMin: 35, priceMax: 55, rating: 5.0, reviews: 88, highlight: "Pandebonos con mermelada, cóctel Antares con viche", vibe: "Retro-futurista 70s-80s, Hi-Fi, funky-cósmico", reserva: true, closedDay: "Abierto siempre", instagram: "astro.soda" },
+      { id: "izumi", name: "Izumi", zone: "Granada", cuisine: "Japonesa / Nikkei fusión", priceRange: "$50K–100K", priceMin: 50, priceMax: 100, rating: 4.9, reviews: 867, highlight: "Costillas Miso 18h, Gunkan Foie Gras, Yakimeshi", vibe: "Elegante, trendy, rooftop, DJ", reserva: true, closedDay: "Abierto siempre", instagram: "izumirestaurantco" },
+      { id: "macanudo-hifi", name: "Macanudo HiFi", zone: "Granada (Norte)", cuisine: "Pizza + Coctelería / Listening bar", priceRange: "$30K–55K", priceMin: 30, priceMax: 55, rating: null, reviews: 0, highlight: "Pizzas artesanales, cócteles de autor", vibe: "Listening bar Hi-Fi, house music, estético", reserva: false, closedDay: "Domingo y Lunes", instagram: "macanudo.hifi" },
+      { id: "bohio", name: "Bohío", zone: "Granada", cuisine: "Criolla del Nuevo Mundo", priceRange: "$60K–140K", priceMin: 60, priceMax: 140, rating: 4.4, reviews: 638, highlight: "Medallones de lomo, ceviche, arroz atollado", vibe: "Elegante-acogedor, música en vivo, terraza pet-friendly", reserva: true, closedDay: "Abierto siempre", instagram: "bohiorestaurante.cali" },
+      { id: "un-jardin-en-el-cielo", name: "Un Jardín en el Cielo", zone: "Cristo Rey (mirador)", cuisine: "Casual / Fusión", priceRange: "$28K–50K", priceMin: 28, priceMax: 50, rating: 3.9, reviews: 668, highlight: "Fundido de champiñones, pizza signature, vista panorámica", vibe: "Mirador al aire libre, atardecer, brisa, romántico", reserva: true, closedDay: "Lunes y Martes", instagram: "unjardinenelcielo" },
+    ];
+
+    const dbRef = db.ref('cali-gastro');
+
+    function seedDatabase() {
+      const restaurantsObj = {};
+      DEFAULT_RESTAURANTS.forEach(r => { restaurantsObj[r.id] = r; });
+      dbRef.set({ restaurants: restaurantsObj, personal: {} });
+    }
+
+    function StarRating({ rating, onRate, size = 16 }) {
+      const [hover, setHover] = useState(0);
+      return (
+        <div className="stars" onMouseLeave={() => setHover(0)}>
+          {[1,2,3,4,5].map(i => (
+            <span
+              key={i}
+              className={`star ${i <= (hover || rating) ? 'filled' : ''}`}
+              style={{ fontSize: size }}
+              onMouseEnter={() => onRate && setHover(i)}
+              onClick={(e) => { e.stopPropagation(); onRate && onRate(i === rating ? 0 : i); }}
+            >★</span>
+          ))}
+        </div>
+      );
+    }
+
+    function StatusBadge({ status }) {
+      const labels = { 'quiero-ir': 'Quiero ir', 'ya-fui': 'Ya fui', 'no-interesa': 'No me interesa', 'sin-decidir': 'Sin decidir' };
+      return <span className={`card-status ${status}`}>{labels[status] || labels['sin-decidir']}</span>;
+    }
+
+    function RestaurantCard({ restaurant, personal, onClick, onRate }) {
+      const p = personal || {};
+      return (
+        <div className="card" onClick={onClick}>
+          <div className="card-name">{restaurant.name}</div>
+          <span className="card-zone">{restaurant.zone}</span>
+          <div className="card-cuisine">{restaurant.cuisine}</div>
+          <div className="card-meta">
+            <span className="card-price">{restaurant.priceRange}</span>
+            {restaurant.rating && (
+              <span className="card-rating">
+                <span className="star">★</span> {restaurant.rating}
+              </span>
+            )}
+            {restaurant.reviews > 0 && <span className="card-reviews">{restaurant.reviews.toLocaleString()} reseñas</span>}
+          </div>
+          <div className="card-personal">
+            <StatusBadge status={p.status || 'sin-decidir'} />
+            <StarRating rating={p.myRating || 0} onRate={onRate} size={14} />
+          </div>
+        </div>
+      );
+    }
+
+    function RestaurantTable({ restaurants, personalData, onSelect, onRate, sortBy, sortDesc, onSort }) {
+      const arrow = (key) => sortBy === key ? (sortDesc ? ' ▼' : ' ▲') : '';
+      return (
+        <div className="table-wrap">
+          <table className="rtable">
+            <thead>
+              <tr>
+                <th onClick={() => onSort('name')}>Restaurante{arrow('name')}</th>
+                <th onClick={() => onSort('cuisine')}>Cocina{arrow('cuisine')}</th>
+                <th onClick={() => onSort('priceMin')}>Precio{arrow('priceMin')}</th>
+                <th onClick={() => onSort('rating')}>Rating{arrow('rating')}</th>
+                <th>Mi Rating</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {restaurants.map(r => {
+                const p = personalData[r.id] || {};
+                return (
+                  <tr key={r.id} onClick={() => onSelect(r)}>
+                    <td>
+                      <div className="td-name">{r.name}</div>
+                      <span className="card-zone" style={{marginTop: 4}}>{r.zone}</span>
+                    </td>
+                    <td style={{fontStyle:'italic', color:'var(--text-muted)'}}>{r.cuisine}</td>
+                    <td style={{fontWeight:600}}>{r.priceRange}</td>
+                    <td>
+                      {r.rating ? (
+                        <span className="card-rating"><span className="star">★</span> {r.rating}</span>
+                      ) : <span style={{color:'var(--text-muted)'}}>—</span>}
+                    </td>
+                    <td><StarRating rating={p.myRating || 0} onRate={(val) => onRate(r.id, val)} size={14} /></td>
+                    <td><StatusBadge status={p.status || 'sin-decidir'} /></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    function DetailPanel({ restaurant, personal, onClose, onSave, onDelete }) {
+      const [p, setP] = useState(personal || { status: 'sin-decidir', myRating: 0, dateVisited: '', whatIOrdered: '', totalSpent: '', notes: '', wouldReturn: null });
+
+      const statusOptions = [
+        { key: 'sin-decidir', label: 'Sin decidir', cls: 'active-sin' },
+        { key: 'quiero-ir', label: 'Quiero ir', cls: 'active-quiero' },
+        { key: 'ya-fui', label: 'Ya fui', cls: 'active-fui' },
+        { key: 'no-interesa', label: 'No me interesa', cls: 'active-no' },
+      ];
+
+      return (
+        <div className="overlay" onClick={onClose}>
+          <div className="detail-panel" onClick={e => e.stopPropagation()}>
+            <h2>{restaurant.name}</h2>
+            <div style={{display:'flex', gap:8, marginBottom:8, flexWrap:'wrap'}}>
+              <span className="card-zone">{restaurant.zone}</span>
+              <span style={{fontSize:12, color:'var(--text-muted)', fontStyle:'italic'}}>{restaurant.cuisine}</span>
+            </div>
+
+            <div className="detail-status-chips">
+              {statusOptions.map(s => (
+                <button
+                  key={s.key}
+                  className={`detail-status-chip ${p.status === s.key ? s.cls : ''}`}
+                  onClick={() => setP({...p, status: s.key})}
+                >{s.label}</button>
+              ))}
+            </div>
+
+            <div className="detail-section">
+              <h3>Información pública</h3>
+              <div className="detail-row">
+                <span className="label">Rating</span>
+                <span className="value">{restaurant.rating ? `★ ${restaurant.rating} (${restaurant.reviews.toLocaleString()} reseñas)` : '—'}</span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Precio</span>
+                <span className="value">{restaurant.priceRange} por persona</span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Platos</span>
+                <span className="value">{restaurant.highlight}</span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Ambiente</span>
+                <span className="value">{restaurant.vibe}</span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Cierra</span>
+                <span className="value">{restaurant.closedDay}</span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Reserva</span>
+                <span className="value">{restaurant.reserva ? 'Recomendada' : 'No necesaria'}</span>
+              </div>
+              {restaurant.instagram && (
+                <div className="detail-row">
+                  <span className="label">Instagram</span>
+                  <span className="value">@{restaurant.instagram}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="detail-section">
+              <h3>Mi experiencia</h3>
+              <div style={{marginBottom:14}}>
+                <span style={{fontSize:12, color:'var(--text-muted)', marginRight:10}}>Mi rating:</span>
+                <StarRating rating={p.myRating || 0} onRate={(val) => setP({...p, myRating: val})} size={20} />
+              </div>
+              <input
+                type="date"
+                className="detail-input"
+                value={p.dateVisited || ''}
+                onChange={(e) => setP({...p, dateVisited: e.target.value})}
+                placeholder="Fecha de visita"
+              />
+              <input
+                className="detail-input"
+                value={p.whatIOrdered || ''}
+                onChange={(e) => setP({...p, whatIOrdered: e.target.value})}
+                placeholder="¿Qué pedí?"
+              />
+              <input
+                className="detail-input"
+                type="number"
+                value={p.totalSpent || ''}
+                onChange={(e) => setP({...p, totalSpent: e.target.value})}
+                placeholder="Total gastado (COP)"
+              />
+              <textarea
+                className="detail-textarea"
+                value={p.notes || ''}
+                onChange={(e) => setP({...p, notes: e.target.value})}
+                placeholder="Notas personales..."
+              />
+              <div className="toggle-switch" onClick={() => setP({...p, wouldReturn: !p.wouldReturn})}>
+                <div className={`toggle-track ${p.wouldReturn ? 'on' : ''}`}>
+                  <div className="toggle-knob" />
+                </div>
+                <span>¿Volvería?</span>
+              </div>
+            </div>
+
+            <div style={{display:'flex', gap:10, marginTop:24, justifyContent:'space-between'}}>
+              <button className="btn-danger" onClick={() => { if(confirm('¿Eliminar ' + restaurant.name + '?')) onDelete(restaurant.id); }}>Eliminar</button>
+              <div style={{display:'flex', gap:10}}>
+                <button className="btn-ghost" onClick={onClose}>Cerrar</button>
+                <button className="btn-primary" onClick={() => onSave(restaurant.id, p)}>Guardar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function AddModal({ onClose, onAdd }) {
+      const [form, setForm] = useState({
+        name: '', zone: 'Granada', cuisine: '', priceMin: '', priceMax: '',
+        rating: '', reviews: '', highlight: '', vibe: '', closedDay: 'Abierto siempre',
+        reserva: true, instagram: '', status: 'sin-decidir'
+      });
+
+      const zones = ['Granada', 'El Peñón', 'San Antonio', 'San Fernando', 'Ciudad Jardín', 'Centenario', 'La Flora (Norte)', 'Granada (Norte)', 'Cristo Rey (mirador)', 'Oeste (Río Cali)', 'Pance', 'Otro'];
+      const days = ['Abierto siempre', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo', 'Dom (solo almuerzo)', 'Lunes y Martes', 'Domingo y Lunes'];
+
+      const handleSubmit = () => {
+        if (!form.name.trim()) return alert('El nombre es requerido');
+        const id = form.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
+        onAdd({
+          id,
+          name: form.name.trim(),
+          zone: form.zone,
+          cuisine: form.cuisine,
+          priceRange: form.priceMin && form.priceMax ? `$${form.priceMin}K–${form.priceMax}K` : '',
+          priceMin: Number(form.priceMin) || 0,
+          priceMax: Number(form.priceMax) || 0,
+          rating: Number(form.rating) || null,
+          reviews: Number(form.reviews) || 0,
+          highlight: form.highlight,
+          vibe: form.vibe,
+          reserva: form.reserva,
+          closedDay: form.closedDay,
+          instagram: form.instagram || null,
+        }, form.status);
+      };
+
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h2>Agregar Restaurante</h2>
+            <div className="form-group">
+              <label className="form-label">Nombre <span className="req">*</span></label>
+              <input className="form-input" value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Nombre del restaurante" />
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Zona</label>
+                <select className="form-input" value={form.zone} onChange={e => setForm({...form, zone: e.target.value})}>
+                  {zones.map(z => <option key={z} value={z}>{z}</option>)}
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Cocina</label>
+                <input className="form-input" value={form.cuisine} onChange={e => setForm({...form, cuisine: e.target.value})} placeholder="Tipo de cocina" />
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Precio Mín (K)</label>
+                <input className="form-input" type="number" value={form.priceMin} onChange={e => setForm({...form, priceMin: e.target.value})} placeholder="50" />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Precio Máx (K)</label>
+                <input className="form-input" type="number" value={form.priceMax} onChange={e => setForm({...form, priceMax: e.target.value})} placeholder="100" />
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Rating Google</label>
+                <input className="form-input" type="number" step="0.1" min="0" max="5" value={form.rating} onChange={e => setForm({...form, rating: e.target.value})} placeholder="4.5" />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Reseñas</label>
+                <input className="form-input" type="number" value={form.reviews} onChange={e => setForm({...form, reviews: e.target.value})} placeholder="500" />
+              </div>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Platos destacados</label>
+              <input className="form-input" value={form.highlight} onChange={e => setForm({...form, highlight: e.target.value})} placeholder="Platos recomendados" />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Ambiente</label>
+              <input className="form-input" value={form.vibe} onChange={e => setForm({...form, vibe: e.target.value})} placeholder="Vibe / Atmósfera" />
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Día cerrado</label>
+                <select className="form-input" value={form.closedDay} onChange={e => setForm({...form, closedDay: e.target.value})}>
+                  {days.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Instagram</label>
+                <input className="form-input" value={form.instagram} onChange={e => setForm({...form, instagram: e.target.value})} placeholder="@handle" />
+              </div>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Reserva</label>
+              <div className="toggle-switch" onClick={() => setForm({...form, reserva: !form.reserva})}>
+                <div className={`toggle-track ${form.reserva ? 'on' : ''}`}><div className="toggle-knob" /></div>
+                <span style={{fontSize:13, color:'var(--text-secondary)'}}>{form.reserva ? 'Recomendada' : 'No necesaria'}</span>
+              </div>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Estado inicial</label>
+              <div className="detail-status-chips">
+                {[{key:'sin-decidir',label:'Sin decidir',cls:'active-sin'},{key:'quiero-ir',label:'Quiero ir',cls:'active-quiero'},{key:'ya-fui',label:'Ya fui',cls:'active-fui'},{key:'no-interesa',label:'No me interesa',cls:'active-no'}].map(s => (
+                  <button key={s.key} className={`detail-status-chip ${form.status === s.key ? s.cls : ''}`} onClick={() => setForm({...form, status: s.key})}>{s.label}</button>
+                ))}
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="btn-ghost" onClick={onClose}>Cancelar</button>
+              <button className="btn-primary" onClick={handleSubmit}>Agregar</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [data, setData] = useState({ restaurants: [], personal: {} });
+      const [loading, setLoading] = useState(true);
+      const [view, setView] = useState('grid');
+      const [search, setSearch] = useState('');
+      const [zoneFilter, setZoneFilter] = useState('Todas');
+      const [statusFilter, setStatusFilter] = useState('todos');
+      const [sortBy, setSortBy] = useState('rating');
+      const [sortDesc, setSortDesc] = useState(true);
+      const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+      const [showAddModal, setShowAddModal] = useState(false);
+
+      useEffect(() => {
+        dbRef.on('value', (snapshot) => {
+          const val = snapshot.val();
+          if (!val || !val.restaurants) {
+            seedDatabase();
+            return;
+          }
+          const restaurants = Object.values(val.restaurants);
+          const personal = val.personal || {};
+          setData({ restaurants, personal });
+          setLoading(false);
+        });
+        return () => dbRef.off();
+      }, []);
+
+      const zones = useMemo(() => {
+        const z = [...new Set(data.restaurants.map(r => r.zone))];
+        return ['Todas', ...z.sort()];
+      }, [data.restaurants]);
+
+      const filtered = useMemo(() => {
+        return data.restaurants
+          .filter(r => {
+            if (zoneFilter !== 'Todas' && r.zone !== zoneFilter) return false;
+            if (statusFilter !== 'todos') {
+              const ps = (data.personal[r.id] || {}).status || 'sin-decidir';
+              if (ps !== statusFilter) return false;
+            }
+            if (search) {
+              const q = search.toLowerCase();
+              return r.name.toLowerCase().includes(q) || r.cuisine.toLowerCase().includes(q) || r.zone.toLowerCase().includes(q) || (r.highlight && r.highlight.toLowerCase().includes(q));
+            }
+            return true;
+          })
+          .sort((a, b) => {
+            let va = a[sortBy];
+            let vb = b[sortBy];
+            if (va === null || va === undefined) va = sortDesc ? -Infinity : Infinity;
+            if (vb === null || vb === undefined) vb = sortDesc ? -Infinity : Infinity;
+            if (typeof va === 'string') return sortDesc ? vb.localeCompare(va) : va.localeCompare(vb);
+            return sortDesc ? vb - va : va - vb;
+          });
+      }, [data, zoneFilter, statusFilter, search, sortBy, sortDesc]);
+
+      const stats = useMemo(() => {
+        const total = data.restaurants.length;
+        let quiero = 0, fui = 0, no = 0;
+        Object.values(data.personal).forEach(p => {
+          if (p.status === 'quiero-ir') quiero++;
+          if (p.status === 'ya-fui') fui++;
+          if (p.status === 'no-interesa') no++;
+        });
+        return { total, quiero, fui, no };
+      }, [data]);
+
+      const handleSort = (key) => {
+        if (sortBy === key) setSortDesc(!sortDesc);
+        else { setSortBy(key); setSortDesc(key === 'name' || key === 'cuisine' ? false : true); }
+      };
+
+      const handleRate = (id, val) => {
+        const current = data.personal[id] || {};
+        dbRef.child('personal/' + id).update({ ...current, myRating: val });
+      };
+
+      const handleSavePersonal = (id, personal) => {
+        dbRef.child('personal/' + id).set(personal);
+        setSelectedRestaurant(null);
+      };
+
+      const handleDelete = (id) => {
+        dbRef.child('restaurants/' + id).remove();
+        dbRef.child('personal/' + id).remove();
+        setSelectedRestaurant(null);
+      };
+
+      const handleAdd = (restaurant, status) => {
+        dbRef.child('restaurants/' + restaurant.id).set(restaurant);
+        dbRef.child('personal/' + restaurant.id).set({ status, myRating: 0, dateVisited: '', whatIOrdered: '', totalSpent: '', notes: '', wouldReturn: null });
+        setShowAddModal(false);
+      };
+
+      if (loading) return (
+        <div className="app" style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'60vh'}}>
+          <h1 style={{fontFamily:'var(--font-headline)', fontSize:28, marginBottom:8}}>Cali Gastro</h1>
+          <p style={{color:'var(--text-muted)', fontSize:14}}>Cargando restaurantes...</p>
+        </div>
+      );
+
+      return (
+        <div className="app">
+          <div className="header">
+            <h1>Cali Gastro</h1>
+            <p className="subtitle">Tu guía personal de restaurantes en Cali</p>
+            <div className="stats">
+              <span><span className="stat-num">{stats.total}</span> restaurantes</span>
+              <span><span className="stat-num">{stats.quiero}</span> por visitar</span>
+              <span><span className="stat-num">{stats.fui}</span> visitados</span>
+            </div>
+          </div>
+
+          <div className="filters">
+            <input
+              className="search-input"
+              placeholder="Buscar por nombre, cocina, zona..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+            <select className="filter-select" value={zoneFilter} onChange={e => setZoneFilter(e.target.value)}>
+              {zones.map(z => <option key={z} value={z}>{z}</option>)}
+            </select>
+            <div className="status-chips">
+              {[{key:'todos',label:'Todos'},{key:'quiero-ir',label:'Quiero ir'},{key:'ya-fui',label:'Ya fui'},{key:'no-interesa',label:'No me interesa'},{key:'sin-decidir',label:'Sin decidir'}].map(s => (
+                <button key={s.key} className={`status-chip ${statusFilter === s.key ? 'active' : ''}`} onClick={() => setStatusFilter(s.key)}>{s.label}</button>
+              ))}
+            </div>
+            <div className="view-toggle">
+              <button className={`view-btn ${view === 'grid' ? 'active' : ''}`} onClick={() => setView('grid')}>Grid</button>
+              <button className={`view-btn ${view === 'table' ? 'active' : ''}`} onClick={() => setView('table')}>Tabla</button>
+            </div>
+          </div>
+
+          <div className="toolbar">
+            <span className="count">{filtered.length} restaurantes</span>
+            <select className="sort-select" value={`${sortBy}-${sortDesc?'desc':'asc'}`} onChange={e => {
+              const [key, dir] = e.target.value.split('-');
+              setSortBy(key);
+              setSortDesc(dir === 'desc');
+            }}>
+              <option value="rating-desc">Mayor rating</option>
+              <option value="rating-asc">Menor rating</option>
+              <option value="priceMin-asc">Menor precio</option>
+              <option value="priceMin-desc">Mayor precio</option>
+              <option value="reviews-desc">Más reseñas</option>
+              <option value="name-asc">Nombre A-Z</option>
+              <option value="name-desc">Nombre Z-A</option>
+            </select>
+          </div>
+
+          {view === 'grid' ? (
+            <div className="grid">
+              {filtered.map(r => (
+                <RestaurantCard
+                  key={r.id}
+                  restaurant={r}
+                  personal={data.personal[r.id]}
+                  onClick={() => setSelectedRestaurant(r)}
+                  onRate={(val) => handleRate(r.id, val)}
+                />
+              ))}
+            </div>
+          ) : (
+            <RestaurantTable
+              restaurants={filtered}
+              personalData={data.personal}
+              onSelect={setSelectedRestaurant}
+              onRate={handleRate}
+              sortBy={sortBy}
+              sortDesc={sortDesc}
+              onSort={handleSort}
+            />
+          )}
+
+          {filtered.length === 0 && (
+            <div style={{textAlign:'center', padding:'60px 20px', color:'var(--text-muted)'}}>
+              <div style={{fontSize:32, marginBottom:12}}>🍽️</div>
+              <div style={{fontSize:14}}>No hay restaurantes que coincidan con los filtros</div>
+            </div>
+          )}
+
+          <button className="fab" onClick={() => setShowAddModal(true)} title="Agregar restaurante">+</button>
+
+          {selectedRestaurant && (
+            <DetailPanel
+              restaurant={selectedRestaurant}
+              personal={data.personal[selectedRestaurant.id]}
+              onClose={() => setSelectedRestaurant(null)}
+              onSave={handleSavePersonal}
+              onDelete={handleDelete}
+            />
+          )}
+
+          {showAddModal && (
+            <AddModal onClose={() => setShowAddModal(false)} onAdd={handleAdd} />
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
