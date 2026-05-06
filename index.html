@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cali Gastro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@500;600&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -24,308 +25,418 @@
   </script>
   <style>
     :root {
-      --bg-primary: #faf8f5;
-      --bg-secondary: #ffffff;
-      --bg-card: #ffffff;
-      --bg-hover: #f5f1eb;
-      --bg-elevated: #f0ebe3;
-      --text-primary: #2c2418;
-      --text-secondary: #5a4e3f;
-      --text-muted: #8b7d6b;
-      --accent-gold: #b8942e;
-      --accent-gold-dim: #9a7c24;
-      --accent-brown: #8b7355;
-      --accent-terracotta: #c4603f;
-      --status-quiero: #2d8a52;
-      --status-quiero-bg: rgba(45,138,82,0.1);
-      --status-fui: #b8942e;
-      --status-fui-bg: rgba(184,148,46,0.1);
-      --status-no: #8a7f77;
-      --status-no-bg: rgba(138,127,119,0.08);
-      --status-sin: #a09890;
-      --status-sin-bg: rgba(160,152,144,0.08);
-      --border: #e4ddd2;
-      --border-light: #ece6dc;
-      --radius: 12px;
-      --radius-sm: 8px;
-      --radius-xs: 6px;
-      --shadow: 0 4px 24px rgba(44,36,24,0.08);
-      --shadow-lg: 0 12px 48px rgba(44,36,24,0.15);
-      --font-headline: 'Playfair Display', serif;
-      --font-body: 'DM Sans', sans-serif;
-      --font-label: 'Space Grotesk', sans-serif;
+      --surface: #fff8f6;
+      --surface-container: #fdeae5;
+      --surface-container-low: #fff1ed;
+      --surface-dim: #e9d6d1;
+      --on-surface: #231917;
+      --on-surface-variant: #56423d;
+      --primary: #9b3f25;
+      --primary-container: #bb563b;
+      --on-primary: #ffffff;
+      --secondary: #5c614d;
+      --secondary-container: #e0e5cc;
+      --on-secondary-container: #626753;
+      --tertiary: #006765;
+      --outline: #89726c;
+      --outline-variant: #ddc0b9;
+      --error: #ba1a1a;
+      --radius: 0.75rem;
+      --radius-full: 9999px;
+      --shadow-soft: 0px 4px 20px rgba(26,26,26,0.04);
+      --font-headline: 'Newsreader', serif;
+      --font-body: 'Be Vietnam Pro', sans-serif;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: var(--font-body);
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      line-height: 1.5;
+      background: var(--surface);
+      color: var(--on-surface);
+      line-height: 1.6;
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
 
     ::selection {
-      background: var(--accent-gold);
-      color: #fff;
+      background: var(--primary);
+      color: var(--on-primary);
     }
 
     input, select, textarea, button {
       font-family: var(--font-body);
-      font-size: 13px;
+      font-size: 14px;
     }
 
     input:focus, select:focus, textarea:focus {
       outline: none;
-      border-color: var(--accent-gold) !important;
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 3px rgba(155,63,37,0.1);
     }
 
     ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg-primary); }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-track { background: var(--surface); }
+    ::-webkit-scrollbar-thumb { background: var(--outline-variant); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--outline); }
 
-    .app { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 32px;
+    }
 
-    .header { margin-bottom: 28px; }
+    /* ---- Header ---- */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
     .header h1 {
       font-family: var(--font-headline);
       font-size: 32px;
-      font-weight: 700;
-      color: var(--text-primary);
-      letter-spacing: -0.5px;
+      font-weight: 600;
+      color: var(--primary);
+      letter-spacing: -0.3px;
     }
     .header .subtitle {
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-top: 4px;
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-top: 8px;
     }
     .header .stats {
-      display: flex;
-      gap: 16px;
-      margin-top: 12px;
-      font-family: var(--font-label);
+      font-family: var(--font-body);
       font-size: 12px;
-      color: var(--text-secondary);
-    }
-    .header .stats .stat-num {
       font-weight: 600;
-      color: var(--accent-gold);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-top: 4px;
     }
 
-    .filters {
+    /* ---- Search ---- */
+    .search-wrapper {
+      position: relative;
+      margin-bottom: 24px;
+    }
+    .search-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--outline);
+      font-size: 20px;
+      pointer-events: none;
+    }
+    .search-input {
+      width: 100%;
+      padding: 14px 18px 14px 50px;
+      background: #ffffff;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-full);
+      color: var(--on-surface);
+      font-size: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-input::placeholder {
+      color: var(--outline);
+    }
+    .search-input:focus {
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 3px rgba(155,63,37,0.08);
+    }
+
+    /* ---- Category Chips (Tags) ---- */
+    .chips-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      margin-bottom: 16px;
+      scrollbar-width: none;
+    }
+    .chips-row::-webkit-scrollbar { display: none; }
+
+    .chip {
+      flex-shrink: 0;
+      padding: 6px 16px;
+      border-radius: var(--radius-full);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: var(--secondary-container);
+      color: var(--on-secondary-container);
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .chip:hover {
+      opacity: 0.85;
+    }
+    .chip.active {
+      background: var(--secondary);
+      color: #ffffff;
+    }
+
+    /* ---- Filter Controls Row ---- */
+    .filter-controls {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       align-items: center;
-      margin-bottom: 20px;
-      padding: 16px;
-      background: var(--bg-secondary);
-      border-radius: var(--radius);
-      border: 1px solid var(--border-light);
+      margin-bottom: 16px;
     }
-
-    .search-input {
-      flex: 1;
-      min-width: 180px;
-      padding: 8px 12px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      color: var(--text-primary);
-      font-size: 13px;
-    }
-    .search-input::placeholder { color: var(--text-muted); }
 
     .filter-select {
-      padding: 8px 12px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      color: var(--text-secondary);
-      font-size: 12px;
+      padding: 8px 32px 8px 12px;
+      background: #ffffff;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      color: var(--on-surface-variant);
+      font-size: 13px;
+      font-weight: 500;
       cursor: pointer;
       appearance: none;
-      padding-right: 28px;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%237a6b55'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2389726c'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 10px center;
+      transition: border-color 0.15s;
+    }
+    .filter-select:hover {
+      border-color: var(--outline);
     }
 
+    /* ---- Status Filter Chips ---- */
     .status-chips {
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
     }
     .status-chip {
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 500;
-      cursor: pointer;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text-muted);
-      transition: all 0.15s;
-      font-family: var(--font-label);
-    }
-    .status-chip:hover { border-color: var(--accent-brown); color: var(--text-secondary); }
-    .status-chip.active { border-color: var(--accent-gold); color: var(--accent-gold); background: rgba(201,168,76,0.08); }
-
-    .view-toggle {
-      display: flex;
-      gap: 4px;
-      background: var(--bg-primary);
-      border-radius: var(--radius-sm);
-      padding: 3px;
-      border: 1px solid var(--border-light);
-    }
-    .view-btn {
       padding: 6px 14px;
-      border: none;
-      border-radius: var(--radius-xs);
+      border-radius: var(--radius-full);
       font-size: 12px;
       font-weight: 500;
       cursor: pointer;
+      border: 1px solid var(--outline-variant);
       background: transparent;
-      color: var(--text-muted);
+      color: var(--on-surface-variant);
       transition: all 0.15s;
-      font-family: var(--font-label);
+      font-family: var(--font-body);
     }
-    .view-btn.active { background: var(--bg-elevated); color: var(--accent-gold); }
+    .status-chip:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .status-chip.active {
+      border-color: var(--primary);
+      color: var(--on-primary);
+      background: var(--primary);
+    }
 
+    /* ---- View Toggle ---- */
+    .view-toggle {
+      display: flex;
+      gap: 0;
+      background: var(--surface-container-low);
+      border-radius: var(--radius);
+      padding: 3px;
+      border: 1px solid var(--outline-variant);
+    }
+    .view-btn {
+      padding: 6px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: transparent;
+      color: var(--on-surface-variant);
+      transition: all 0.15s;
+      font-family: var(--font-body);
+    }
+    .view-btn.active {
+      background: var(--primary);
+      color: var(--on-primary);
+    }
+
+    /* ---- Toolbar ---- */
     .toolbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
-    .toolbar .count { font-size: 12px; color: var(--text-muted); }
+    .toolbar .count {
+      font-size: 13px;
+      color: var(--on-surface-variant);
+      font-weight: 500;
+    }
 
     .sort-select {
-      padding: 6px 10px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-xs);
-      color: var(--text-secondary);
-      font-size: 11px;
+      padding: 7px 30px 7px 12px;
+      background: #ffffff;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      color: var(--on-surface-variant);
+      font-size: 12px;
+      font-weight: 500;
       cursor: pointer;
-      font-family: var(--font-label);
+      font-family: var(--font-body);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2389726c'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
     }
 
+    /* ---- Grid ---- */
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
     }
 
+    /* ---- Card ---- */
     .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-light);
+      background: #ffffff;
+      border: 1px solid var(--outline-variant);
       border-radius: var(--radius);
-      padding: 20px;
+      padding: 24px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
       position: relative;
     }
     .card:hover {
-      border-color: var(--accent-brown);
+      box-shadow: 0px 8px 32px rgba(26,26,26,0.07);
       transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(44,36,24,0.1);
     }
     .card-name {
       font-family: var(--font-headline);
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 6px;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--on-surface);
+      margin-bottom: 4px;
+      line-height: 1.3;
     }
-    .card-zone {
-      display: inline-block;
-      font-family: var(--font-label);
-      font-size: 10px;
+    .card-sub {
+      font-size: 13px;
+      color: var(--on-surface-variant);
+      margin-bottom: 12px;
+    }
+    .card-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .tag-pill {
+      font-family: var(--font-body);
+      font-size: 11px;
       font-weight: 500;
-      background: var(--bg-elevated);
-      color: var(--text-secondary);
       padding: 3px 10px;
-      border-radius: 12px;
-      letter-spacing: 0.3px;
+      border-radius: var(--radius-full);
+      background: var(--secondary-container);
+      color: var(--secondary);
+      letter-spacing: 0.01em;
     }
-    .card-cuisine {
-      font-size: 12px;
-      color: var(--text-muted);
-      font-style: italic;
-      margin-top: 8px;
+    .card-rating-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--on-surface);
+    }
+    .card-rating-badge .star-icon {
+      color: var(--primary);
+      font-size: 15px;
+    }
+    .card-rating-badge .reviews-count {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--on-surface-variant);
     }
     .card-meta {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-top: 12px;
+      margin-bottom: 16px;
       flex-wrap: wrap;
     }
     .card-price {
       font-weight: 600;
       font-size: 13px;
-      color: var(--text-secondary);
+      color: var(--on-surface-variant);
     }
-    .card-rating {
+
+    /* Tri-state button group on card */
+    .tri-state-group {
       display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-primary);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 12px;
     }
-    .card-rating .star { color: var(--accent-gold); }
-    .card-reviews {
+    .tri-state-btn {
+      flex: 1;
+      padding: 7px 4px;
       font-size: 11px;
-      color: var(--text-muted);
+      font-weight: 500;
+      font-family: var(--font-body);
+      cursor: pointer;
+      border: none;
+      background: #ffffff;
+      color: var(--on-surface-variant);
+      transition: all 0.15s;
+      text-align: center;
+      white-space: nowrap;
     }
+    .tri-state-btn:not(:last-child) {
+      border-right: 1px solid var(--outline-variant);
+    }
+    .tri-state-btn:hover {
+      background: var(--surface-container-low);
+    }
+    .tri-state-btn.active-quiero {
+      background: var(--tertiary);
+      color: #ffffff;
+    }
+    .tri-state-btn.active-fui {
+      background: var(--primary);
+      color: var(--on-primary);
+    }
+    .tri-state-btn.active-sin {
+      background: var(--surface-dim);
+      color: var(--on-surface-variant);
+    }
+
     .card-personal {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
-      margin-top: 14px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border-light);
-    }
-    .card-status {
-      font-family: var(--font-label);
-      font-size: 10px;
-      font-weight: 500;
-      padding: 4px 10px;
-      border-radius: 12px;
-      letter-spacing: 0.3px;
-    }
-    .card-status.quiero-ir { background: var(--status-quiero-bg); color: var(--status-quiero); }
-    .card-status.ya-fui { background: var(--status-fui-bg); color: var(--status-fui); }
-    .card-status.no-interesa { background: var(--status-no-bg); color: var(--status-no); }
-    .card-status.sin-decidir { background: var(--status-sin-bg); color: var(--status-sin); }
-
-    .card-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
-    .tag-pill {
-      font-family: var(--font-label);
-      font-size: 9px;
-      font-weight: 500;
-      padding: 2px 7px;
-      border-radius: 8px;
-      background: var(--bg-hover);
-      color: var(--text-muted);
-      letter-spacing: 0.2px;
     }
 
+    /* ---- Stars ---- */
     .stars { display: flex; gap: 2px; }
     .stars .star {
       cursor: pointer;
       font-size: 16px;
-      color: var(--border);
+      color: var(--outline-variant);
       transition: color 0.1s;
+      line-height: 1;
     }
-    .stars .star.filled { color: var(--accent-gold); }
-    .stars .star:hover { color: var(--accent-gold-dim); }
+    .stars .star.filled { color: var(--primary); }
+    .stars .star:hover { color: var(--primary-container); }
 
-    /* Table view */
+    /* ---- Table view ---- */
     .table-wrap { overflow-x: auto; }
     .rtable {
       width: 100%;
@@ -333,46 +444,74 @@
       border-spacing: 0;
     }
     .rtable th {
-      font-family: var(--font-label);
-      font-size: 10px;
+      font-family: var(--font-body);
+      font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-muted);
-      padding: 12px 12px;
-      border-bottom: 1px solid var(--border);
+      letter-spacing: 0.06em;
+      color: var(--outline);
+      padding: 14px 14px;
+      border-bottom: 2px solid var(--outline-variant);
       text-align: left;
       white-space: nowrap;
       cursor: pointer;
       user-select: none;
       transition: color 0.15s;
     }
-    .rtable th:hover { color: var(--accent-gold); }
+    .rtable th:hover { color: var(--primary); }
     .rtable td {
       font-size: 13px;
-      color: var(--text-secondary);
-      padding: 14px 12px;
-      border-bottom: 1px solid var(--border-light);
+      color: var(--on-surface-variant);
+      padding: 16px 14px;
+      border-bottom: 1px solid var(--outline-variant);
       vertical-align: middle;
     }
     .rtable tbody tr {
       cursor: pointer;
       transition: background 0.15s;
     }
-    .rtable tbody tr:hover { background: var(--bg-hover); }
+    .rtable tbody tr:hover { background: var(--surface-container-low); }
     .rtable .td-name {
       font-family: var(--font-headline);
-      font-weight: 700;
-      font-size: 14px;
-      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--on-surface);
     }
+    .td-zone {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--on-surface-variant);
+      margin-top: 2px;
+    }
+    .td-rating {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+      color: var(--on-surface);
+    }
+    .td-rating .star-icon {
+      color: var(--primary);
+    }
+    .td-status {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      display: inline-block;
+    }
+    .td-status.quiero-ir { background: rgba(0,103,101,0.1); color: var(--tertiary); }
+    .td-status.ya-fui { background: rgba(155,63,37,0.1); color: var(--primary); }
+    .td-status.no-interesa { background: var(--surface-dim); color: var(--outline); }
+    .td-status.sin-decidir { background: var(--surface-container-low); color: var(--outline); }
 
-    /* Detail flash card */
+    /* ---- Detail Panel (modal overlay) ---- */
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(44,36,24,0.4);
-      backdrop-filter: blur(4px);
+      background: rgba(35,25,23,0.35);
+      backdrop-filter: blur(6px);
       z-index: 100;
       display: flex;
       align-items: center;
@@ -380,100 +519,126 @@
       animation: fadeIn 0.2s;
     }
     .detail-panel {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
+      background: #ffffff;
+      border: 1px solid var(--outline-variant);
       border-radius: var(--radius);
       z-index: 101;
       overflow-y: auto;
-      padding: 32px 28px;
-      width: 520px;
+      padding: 36px 32px;
+      width: 540px;
       max-width: 92vw;
       max-height: 85vh;
       animation: scaleIn 0.2s ease-out;
-      box-shadow: var(--shadow-lg);
+      box-shadow: 0px 16px 48px rgba(26,26,26,0.12);
     }
-    @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes scaleIn { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     .detail-panel h2 {
       font-family: var(--font-headline);
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 8px;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--on-surface);
+      margin-bottom: 4px;
+      line-height: 1.3;
     }
+    .detail-subtitle {
+      font-size: 14px;
+      color: var(--on-surface-variant);
+      margin-bottom: 16px;
+    }
+
+    .detail-status-chips {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .detail-status-chip {
+      padding: 7px 16px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--outline-variant);
+      background: transparent;
+      color: var(--on-surface-variant);
+      transition: all 0.15s;
+      font-family: var(--font-body);
+    }
+    .detail-status-chip:hover { border-color: var(--primary); color: var(--primary); }
+    .detail-status-chip.active-quiero { border-color: var(--tertiary); color: #ffffff; background: var(--tertiary); }
+    .detail-status-chip.active-fui { border-color: var(--primary); color: var(--on-primary); background: var(--primary); }
+    .detail-status-chip.active-no { border-color: var(--outline); color: var(--outline); background: var(--surface-dim); }
+    .detail-status-chip.active-sin { border-color: var(--outline-variant); color: var(--on-surface-variant); background: var(--surface-container-low); }
+
     .detail-section {
       margin-top: 24px;
       padding-top: 20px;
-      border-top: 1px solid var(--border-light);
+      border-top: 1px solid var(--outline-variant);
     }
     .detail-section h3 {
-      font-family: var(--font-label);
-      font-size: 11px;
+      font-family: var(--font-body);
+      font-size: 12px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 1.2px;
-      color: var(--text-muted);
-      margin-bottom: 14px;
+      letter-spacing: 0.08em;
+      color: var(--outline);
+      margin-bottom: 16px;
     }
     .detail-row {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       font-size: 13px;
     }
-    .detail-row .label { color: var(--text-muted); font-weight: 500; min-width: 100px; }
-    .detail-row .value { color: var(--text-primary); text-align: right; flex: 1; }
+    .detail-row .label {
+      color: var(--outline);
+      font-weight: 500;
+      min-width: 100px;
+    }
+    .detail-row .value {
+      color: var(--on-surface);
+      text-align: right;
+      flex: 1;
+    }
 
     .detail-input {
       width: 100%;
-      padding: 10px 12px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xs);
-      color: var(--text-primary);
+      padding: 11px 14px;
+      background: var(--surface);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      color: var(--on-surface);
       font-size: 13px;
       margin-bottom: 12px;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
-    .detail-input::placeholder { color: var(--text-muted); }
+    .detail-input::placeholder { color: var(--outline); }
+    .detail-input:focus {
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 3px rgba(155,63,37,0.08);
+    }
     .detail-textarea {
       width: 100%;
-      padding: 10px 12px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xs);
-      color: var(--text-primary);
+      padding: 11px 14px;
+      background: var(--surface);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      color: var(--on-surface);
       font-size: 13px;
       margin-bottom: 12px;
       resize: vertical;
       min-height: 80px;
       line-height: 1.5;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
-    .detail-textarea::placeholder { color: var(--text-muted); }
-
-    .detail-status-chips {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
+    .detail-textarea::placeholder { color: var(--outline); }
+    .detail-textarea:focus {
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 3px rgba(155,63,37,0.08);
     }
-    .detail-status-chip {
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text-muted);
-      transition: all 0.15s;
-      font-family: var(--font-label);
-    }
-    .detail-status-chip:hover { border-color: var(--accent-brown); }
-    .detail-status-chip.active-quiero { border-color: var(--status-quiero); color: var(--status-quiero); background: var(--status-quiero-bg); }
-    .detail-status-chip.active-fui { border-color: var(--status-fui); color: var(--status-fui); background: var(--status-fui-bg); }
-    .detail-status-chip.active-no { border-color: var(--status-no); color: var(--status-no); background: var(--status-no-bg); }
-    .detail-status-chip.active-sin { border-color: var(--status-sin); color: var(--status-sin); background: var(--status-sin-bg); }
 
     .toggle-switch {
       display: flex;
@@ -481,93 +646,99 @@
       gap: 10px;
       cursor: pointer;
       font-size: 13px;
-      color: var(--text-secondary);
+      color: var(--on-surface-variant);
     }
     .toggle-track {
-      width: 40px;
-      height: 22px;
-      border-radius: 11px;
-      background: var(--border);
+      width: 42px;
+      height: 24px;
+      border-radius: 12px;
+      background: var(--outline-variant);
       position: relative;
       transition: background 0.2s;
     }
-    .toggle-track.on { background: var(--accent-gold); }
+    .toggle-track.on { background: var(--primary); }
     .toggle-knob {
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
-      background: var(--text-primary);
+      background: #ffffff;
       position: absolute;
       top: 2px;
       left: 2px;
       transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
     }
     .toggle-track.on .toggle-knob { transform: translateX(18px); }
 
     .btn-primary {
-      padding: 10px 24px;
-      background: var(--accent-gold);
-      color: var(--bg-primary);
+      padding: 10px 28px;
+      background: var(--primary);
+      color: var(--on-primary);
       border: none;
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius);
       font-weight: 600;
-      font-size: 13px;
+      font-size: 14px;
       cursor: pointer;
       transition: all 0.15s;
     }
-    .btn-primary:hover { background: #d4b355; }
+    .btn-primary:hover { background: var(--primary-container); }
     .btn-ghost {
       padding: 10px 24px;
       background: transparent;
-      color: var(--text-secondary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      border-radius: var(--radius);
       font-weight: 500;
-      font-size: 13px;
+      font-size: 14px;
       cursor: pointer;
       transition: all 0.15s;
     }
-    .btn-ghost:hover { border-color: var(--accent-brown); color: var(--text-primary); }
+    .btn-ghost:hover { background: rgba(155,63,37,0.05); }
     .btn-danger {
-      padding: 8px 16px;
+      padding: 8px 18px;
       background: transparent;
-      color: var(--accent-terracotta);
-      border: 1px solid var(--accent-terracotta);
-      border-radius: var(--radius-sm);
+      color: var(--error);
+      border: 1px solid var(--error);
+      border-radius: var(--radius);
       font-weight: 500;
       font-size: 12px;
       cursor: pointer;
       transition: all 0.15s;
     }
-    .btn-danger:hover { background: rgba(212,119,90,0.1); }
+    .btn-danger:hover { background: rgba(186,26,26,0.06); }
 
+    /* ---- FAB ---- */
     .fab {
       position: fixed;
-      bottom: 28px;
-      right: 28px;
-      width: 52px;
-      height: 52px;
+      bottom: 32px;
+      right: 32px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
-      background: var(--accent-gold);
-      color: var(--bg-primary);
+      background: var(--primary);
+      color: var(--on-primary);
       border: none;
-      font-size: 24px;
+      font-size: 28px;
       font-weight: 300;
       cursor: pointer;
-      box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+      box-shadow: 0 4px 20px rgba(155,63,37,0.3);
       transition: all 0.2s;
       z-index: 50;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(201,168,76,0.4); }
+    .fab:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 28px rgba(155,63,37,0.4);
+    }
 
-    /* Modal */
+    /* ---- Modal (Add) ---- */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.7);
+      background: rgba(35,25,23,0.4);
+      backdrop-filter: blur(6px);
       z-index: 200;
       display: flex;
       align-items: center;
@@ -575,70 +746,99 @@
       animation: fadeIn 0.2s;
     }
     .modal {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
+      background: #ffffff;
+      border: 1px solid var(--outline-variant);
       border-radius: var(--radius);
-      padding: 32px;
+      padding: 36px 32px;
       width: 560px;
-      max-width: 90vw;
+      max-width: 92vw;
       max-height: 85vh;
       overflow-y: auto;
       animation: scaleIn 0.2s ease-out;
+      box-shadow: 0px 16px 48px rgba(26,26,26,0.12);
     }
-    @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     .modal h2 {
       font-family: var(--font-headline);
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 24px;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--on-surface);
+      margin-bottom: 28px;
     }
     .form-group {
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
     .form-label {
       display: block;
-      font-family: var(--font-label);
-      font-size: 11px;
-      font-weight: 500;
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      color: var(--outline);
       margin-bottom: 6px;
     }
-    .form-label .req { color: var(--accent-gold); }
+    .form-label .req { color: var(--primary); }
     .form-input {
       width: 100%;
-      padding: 10px 12px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xs);
-      color: var(--text-primary);
-      font-size: 13px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      color: var(--on-surface);
+      font-size: 14px;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
-    .form-input::placeholder { color: var(--text-muted); }
+    .form-input::placeholder { color: var(--outline); }
+    .form-input:focus {
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 3px rgba(155,63,37,0.08);
+    }
     .form-row {
       display: flex;
-      gap: 12px;
+      gap: 14px;
     }
     .form-row .form-group { flex: 1; }
     .modal-actions {
       display: flex;
       justify-content: flex-end;
       gap: 10px;
-      margin-top: 24px;
+      margin-top: 28px;
       padding-top: 20px;
-      border-top: 1px solid var(--border-light);
+      border-top: 1px solid var(--outline-variant);
     }
 
+    /* ---- Empty state ---- */
+    .empty-state {
+      text-align: center;
+      padding: 64px 24px;
+      color: var(--on-surface-variant);
+    }
+    .empty-state .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    .empty-state p {
+      font-size: 14px;
+    }
+
+    /* ---- Responsive ---- */
     @media (max-width: 768px) {
-      .app { padding: 16px 12px; }
-      .header h1 { font-size: 24px; }
+      .app { padding: 24px 16px; }
+      .header h1 { font-size: 28px; }
       .grid { grid-template-columns: 1fr; }
-      .filters { flex-direction: column; align-items: stretch; }
-      .search-input { min-width: unset; }
-      .detail-panel { width: 95vw; max-height: 90vh; }
-      .modal { width: 95vw; padding: 24px 16px; }
+      .filter-controls { flex-direction: column; align-items: stretch; }
+      .search-input { font-size: 16px; }
+      .detail-panel { width: 96vw; max-height: 92vh; padding: 24px 20px; }
+      .modal { width: 96vw; padding: 24px 20px; }
       .form-row { flex-direction: column; gap: 0; }
+      .tri-state-btn { font-size: 10px; padding: 6px 2px; }
+    }
+
+    @media (min-width: 1024px) {
+      .grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
     }
   </style>
 </head>
@@ -687,7 +887,7 @@
               style={{ fontSize: size }}
               onMouseEnter={() => onRate && setHover(i)}
               onClick={(e) => { e.stopPropagation(); onRate && onRate(i === rating ? 0 : i); }}
-            >★</span>
+            >&#9733;</span>
           ))}
         </div>
       );
@@ -695,33 +895,51 @@
 
     function StatusBadge({ status }) {
       const labels = { 'quiero-ir': 'Quiero ir', 'ya-fui': 'Ya fui', 'no-interesa': 'No me interesa', 'sin-decidir': 'Sin decidir' };
-      return <span className={`card-status ${status}`}>{labels[status] || labels['sin-decidir']}</span>;
+      return <span className={`td-status ${status}`}>{labels[status] || labels['sin-decidir']}</span>;
     }
 
-    function RestaurantCard({ restaurant, personal, onClick, onRate }) {
+    function RestaurantCard({ restaurant, personal, onClick, onRate, onStatusChange }) {
       const p = personal || {};
+      const currentStatus = p.status || 'sin-decidir';
+
+      const handleStatusClick = (e, newStatus) => {
+        e.stopPropagation();
+        onStatusChange(restaurant.id, newStatus);
+      };
+
       return (
         <div className="card" onClick={onClick}>
           <div className="card-name">{restaurant.name}</div>
-          <div style={{display:'flex', gap:6, alignItems:'center', flexWrap:'wrap', marginBottom:4}}>
-            <span className="card-zone">{restaurant.zone}</span>
-            {restaurant.priceTier && <span className="card-zone" style={{background:'var(--status-fui-bg)', color:'var(--accent-gold)'}}>{restaurant.priceTier}</span>}
-          </div>
+          <div className="card-sub">{restaurant.zone} &middot; {restaurant.priceTier || '$$'}</div>
           <div className="card-tags">
             {(restaurant.tags || []).slice(0, 3).map(t => <span key={t} className="tag-pill">{t}</span>)}
           </div>
           <div className="card-meta">
             <span className="card-price">{restaurant.priceRange}</span>
             {restaurant.rating && (
-              <span className="card-rating">
-                <span className="star">★</span> {restaurant.rating}
+              <span className="card-rating-badge">
+                <span className="star-icon">&#9733;</span>
+                {restaurant.rating}
+                {restaurant.reviews > 0 && <span className="reviews-count">({restaurant.reviews.toLocaleString()})</span>}
               </span>
             )}
-            {restaurant.reviews > 0 && <span className="card-reviews">{restaurant.reviews.toLocaleString()} reseñas</span>}
+          </div>
+          <div className="tri-state-group">
+            <button
+              className={`tri-state-btn ${currentStatus === 'sin-decidir' ? 'active-sin' : ''}`}
+              onClick={(e) => handleStatusClick(e, 'sin-decidir')}
+            >Sin decidir</button>
+            <button
+              className={`tri-state-btn ${currentStatus === 'quiero-ir' ? 'active-quiero' : ''}`}
+              onClick={(e) => handleStatusClick(e, 'quiero-ir')}
+            >Quiero ir</button>
+            <button
+              className={`tri-state-btn ${currentStatus === 'ya-fui' ? 'active-fui' : ''}`}
+              onClick={(e) => handleStatusClick(e, 'ya-fui')}
+            >Ya fui</button>
           </div>
           <div className="card-personal">
-            <StatusBadge status={p.status || 'sin-decidir'} />
-            <StarRating rating={p.myRating || 0} onRate={onRate} size={14} />
+            <StarRating rating={p.myRating || 0} onRate={onRate} size={15} />
           </div>
         </div>
       );
@@ -749,14 +967,14 @@
                   <tr key={r.id} onClick={() => onSelect(r)}>
                     <td>
                       <div className="td-name">{r.name}</div>
-                      <span className="card-zone" style={{marginTop: 4}}>{r.zone}</span>
+                      <span className="td-zone">{r.zone}</span>
                     </td>
-                    <td style={{fontStyle:'italic', color:'var(--text-muted)'}}>{r.cuisine}</td>
+                    <td style={{fontStyle:'italic', color:'var(--on-surface-variant)'}}>{r.cuisine}</td>
                     <td style={{fontWeight:600}}>{r.priceRange}</td>
                     <td>
                       {r.rating ? (
-                        <span className="card-rating"><span className="star">★</span> {r.rating}</span>
-                      ) : <span style={{color:'var(--text-muted)'}}>—</span>}
+                        <span className="td-rating"><span className="star-icon">&#9733;</span> {r.rating}</span>
+                      ) : <span style={{color:'var(--outline)'}}>&#8212;</span>}
                     </td>
                     <td><StarRating rating={p.myRating || 0} onRate={(val) => onRate(r.id, val)} size={14} /></td>
                     <td><StatusBadge status={p.status || 'sin-decidir'} /></td>
@@ -783,9 +1001,8 @@
         <div className="overlay" onClick={onClose}>
           <div className="detail-panel" onClick={e => e.stopPropagation()}>
             <h2>{restaurant.name}</h2>
-            <div style={{display:'flex', gap:8, marginBottom:8, flexWrap:'wrap'}}>
-              <span className="card-zone">{restaurant.zone}</span>
-              <span style={{fontSize:12, color:'var(--text-muted)', fontStyle:'italic'}}>{restaurant.cuisine}</span>
+            <div className="detail-subtitle">
+              {restaurant.zone} &middot; {restaurant.cuisine}
             </div>
 
             <div className="detail-status-chips">
@@ -799,10 +1016,10 @@
             </div>
 
             <div className="detail-section">
-              <h3>Información pública</h3>
+              <h3>Informaci&oacute;n p&uacute;blica</h3>
               {restaurant.address && (
                 <div className="detail-row">
-                  <span className="label">Dirección</span>
+                  <span className="label">Direcci&oacute;n</span>
                   <span className="value">{restaurant.address}</span>
                 </div>
               )}
@@ -837,7 +1054,7 @@
                 </div>
               )}
               {(restaurant.tags || []).length > 0 && (
-                <div style={{marginTop:12}}>
+                <div style={{marginTop:14}}>
                   <div className="card-tags">
                     {restaurant.tags.map(t => <span key={t} className="tag-pill">{t}</span>)}
                   </div>
@@ -847,9 +1064,9 @@
 
             <div className="detail-section">
               <h3>Mi experiencia</h3>
-              <div style={{marginBottom:14}}>
-                <span style={{fontSize:12, color:'var(--text-muted)', marginRight:10}}>Mi rating:</span>
-                <StarRating rating={p.myRating || 0} onRate={(val) => setP({...p, myRating: val})} size={20} />
+              <div style={{marginBottom:16, display:'flex', alignItems:'center', gap:12}}>
+                <span style={{fontSize:13, color:'var(--outline)', fontWeight:500}}>Mi rating</span>
+                <StarRating rating={p.myRating || 0} onRate={(val) => setP({...p, myRating: val})} size={22} />
               </div>
               <input
                 type="date"
@@ -862,7 +1079,7 @@
                 className="detail-input"
                 value={p.whatIOrdered || ''}
                 onChange={(e) => setP({...p, whatIOrdered: e.target.value})}
-                placeholder="¿Qué pedí?"
+                placeholder="&iquest;Qu&eacute; ped&iacute;?"
               />
               <input
                 className="detail-input"
@@ -881,11 +1098,11 @@
                 <div className={`toggle-track ${p.wouldReturn ? 'on' : ''}`}>
                   <div className="toggle-knob" />
                 </div>
-                <span>¿Volvería?</span>
+                <span>&iquest;Volver&iacute;a?</span>
               </div>
             </div>
 
-            <div style={{display:'flex', gap:10, marginTop:24, justifyContent:'space-between'}}>
+            <div style={{display:'flex', gap:10, marginTop:28, justifyContent:'space-between'}}>
               <button className="btn-danger" onClick={() => { if(confirm('¿Eliminar ' + restaurant.name + '?')) onDelete(restaurant.id); }}>Eliminar</button>
               <div style={{display:'flex', gap:10}}>
                 <button className="btn-ghost" onClick={onClose}>Cerrar</button>
@@ -950,11 +1167,11 @@
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">Precio Mín (K)</label>
+                <label className="form-label">Precio M&iacute;n (K)</label>
                 <input className="form-input" type="number" value={form.priceMin} onChange={e => setForm({...form, priceMin: e.target.value})} placeholder="50" />
               </div>
               <div className="form-group">
-                <label className="form-label">Precio Máx (K)</label>
+                <label className="form-label">Precio M&aacute;x (K)</label>
                 <input className="form-input" type="number" value={form.priceMax} onChange={e => setForm({...form, priceMax: e.target.value})} placeholder="100" />
               </div>
             </div>
@@ -964,7 +1181,7 @@
                 <input className="form-input" type="number" step="0.1" min="0" max="5" value={form.rating} onChange={e => setForm({...form, rating: e.target.value})} placeholder="4.5" />
               </div>
               <div className="form-group">
-                <label className="form-label">Reseñas</label>
+                <label className="form-label">Rese&ntilde;as</label>
                 <input className="form-input" type="number" value={form.reviews} onChange={e => setForm({...form, reviews: e.target.value})} placeholder="500" />
               </div>
             </div>
@@ -974,11 +1191,11 @@
             </div>
             <div className="form-group">
               <label className="form-label">Ambiente</label>
-              <input className="form-input" value={form.vibe} onChange={e => setForm({...form, vibe: e.target.value})} placeholder="Vibe / Atmósfera" />
+              <input className="form-input" value={form.vibe} onChange={e => setForm({...form, vibe: e.target.value})} placeholder="Vibe / Atm&oacute;sfera" />
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">Día cerrado</label>
+                <label className="form-label">D&iacute;a cerrado</label>
                 <select className="form-input" value={form.closedDay} onChange={e => setForm({...form, closedDay: e.target.value})}>
                   {days.map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
@@ -992,7 +1209,7 @@
               <label className="form-label">Reserva</label>
               <div className="toggle-switch" onClick={() => setForm({...form, reserva: !form.reserva})}>
                 <div className={`toggle-track ${form.reserva ? 'on' : ''}`}><div className="toggle-knob" /></div>
-                <span style={{fontSize:13, color:'var(--text-secondary)'}}>{form.reserva ? 'Recomendada' : 'No necesaria'}</span>
+                <span style={{fontSize:13, color:'var(--on-surface-variant)'}}>{form.reserva ? 'Recomendada' : 'No necesaria'}</span>
               </div>
             </div>
             <div className="form-group">
@@ -1099,6 +1316,11 @@
         dbRef.child('personal/' + id).update({ ...current, myRating: val });
       };
 
+      const handleStatusChange = (id, newStatus) => {
+        const current = data.personal[id] || { myRating: 0, dateVisited: '', whatIOrdered: '', totalSpent: '', notes: '', wouldReturn: null };
+        dbRef.child('personal/' + id).update({ ...current, status: newStatus });
+      };
+
       const handleSavePersonal = (id, personal) => {
         dbRef.child('personal/' + id).set(personal);
         setSelectedRestaurant(null);
@@ -1118,8 +1340,8 @@
 
       if (loading) return (
         <div className="app" style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'60vh'}}>
-          <h1 style={{fontFamily:'var(--font-headline)', fontSize:28, marginBottom:8}}>Cali Gastro</h1>
-          <p style={{color:'var(--text-muted)', fontSize:14}}>Cargando restaurantes...</p>
+          <h1 style={{fontFamily:'var(--font-headline)', fontSize:32, color:'var(--primary)', fontWeight:600}}>Cali Gastro</h1>
+          <p style={{color:'var(--on-surface-variant)', fontSize:14, marginTop:8}}>Cargando restaurantes...</p>
         </div>
       );
 
@@ -1127,27 +1349,37 @@
         <div className="app">
           <div className="header">
             <h1>Cali Gastro</h1>
-            <p className="subtitle">Tu guía personal de restaurantes en Cali</p>
-            <div className="stats">
-              <span><span className="stat-num">{stats.total}</span> restaurantes</span>
-              <span><span className="stat-num">{stats.quiero}</span> por visitar</span>
-              <span><span className="stat-num">{stats.fui}</span> visitados</span>
-            </div>
+            <div className="subtitle">{stats.total} RESTAURANTES</div>
+            <div className="stats">{stats.quiero} por visitar &middot; {stats.fui} visitados</div>
           </div>
 
-          <div className="filters">
+          <div className="search-wrapper">
+            <span className="search-icon material-symbols-outlined">search</span>
             <input
               className="search-input"
               placeholder="Buscar por nombre, cocina, zona..."
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
+          </div>
+
+          <div className="chips-row">
+            <button
+              className={`chip ${tagFilter === '' ? 'active' : ''}`}
+              onClick={() => setTagFilter('')}
+            >Todos</button>
+            {allTags.map(t => (
+              <button
+                key={t}
+                className={`chip ${tagFilter === t ? 'active' : ''}`}
+                onClick={() => setTagFilter(tagFilter === t ? '' : t)}
+              >{t}</button>
+            ))}
+          </div>
+
+          <div className="filter-controls">
             <select className="filter-select" value={zoneFilter} onChange={e => setZoneFilter(e.target.value)}>
-              {zones.map(z => <option key={z} value={z}>{z}</option>)}
-            </select>
-            <select className="filter-select" value={tagFilter} onChange={e => setTagFilter(e.target.value)}>
-              <option value="">Categoría</option>
-              {allTags.map(t => <option key={t} value={t}>{t}</option>)}
+              {zones.map(z => <option key={z} value={z}>{z === 'Todas' ? 'Todas las zonas' : z}</option>)}
             </select>
             <select className="filter-select" value={priceFilter} onChange={e => setPriceFilter(e.target.value)}>
               <option value="">Precio</option>
@@ -1161,9 +1393,11 @@
                 <button key={s.key} className={`status-chip ${statusFilter === s.key ? 'active' : ''}`} onClick={() => setStatusFilter(s.key)}>{s.label}</button>
               ))}
             </div>
-            <div className="view-toggle">
-              <button className={`view-btn ${view === 'grid' ? 'active' : ''}`} onClick={() => setView('grid')}>Grid</button>
-              <button className={`view-btn ${view === 'table' ? 'active' : ''}`} onClick={() => setView('table')}>Tabla</button>
+            <div style={{marginLeft:'auto'}}>
+              <div className="view-toggle">
+                <button className={`view-btn ${view === 'grid' ? 'active' : ''}`} onClick={() => setView('grid')}>Grid</button>
+                <button className={`view-btn ${view === 'table' ? 'active' : ''}`} onClick={() => setView('table')}>Tabla</button>
+              </div>
             </div>
           </div>
 
@@ -1178,7 +1412,7 @@
               <option value="rating-asc">Menor rating</option>
               <option value="priceMin-asc">Menor precio</option>
               <option value="priceMin-desc">Mayor precio</option>
-              <option value="reviews-desc">Más reseñas</option>
+              <option value="reviews-desc">M&aacute;s rese&ntilde;as</option>
               <option value="name-asc">Nombre A-Z</option>
               <option value="name-desc">Nombre Z-A</option>
             </select>
@@ -1193,6 +1427,7 @@
                   personal={data.personal[r.id]}
                   onClick={() => setSelectedRestaurant(r)}
                   onRate={(val) => handleRate(r.id, val)}
+                  onStatusChange={handleStatusChange}
                 />
               ))}
             </div>
@@ -1209,9 +1444,11 @@
           )}
 
           {filtered.length === 0 && (
-            <div style={{textAlign:'center', padding:'60px 20px', color:'var(--text-muted)'}}>
-              <div style={{fontSize:32, marginBottom:12}}>🍽️</div>
-              <div style={{fontSize:14}}>No hay restaurantes que coincidan con los filtros</div>
+            <div className="empty-state">
+              <div className="empty-icon">
+                <span className="material-symbols-outlined" style={{fontSize:48}}>restaurant</span>
+              </div>
+              <p>No hay restaurantes que coincidan con los filtros</p>
             </div>
           )}
 
