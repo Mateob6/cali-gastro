@@ -303,6 +303,18 @@
     .card-status.no-interesa { background: var(--status-no-bg); color: var(--status-no); }
     .card-status.sin-decidir { background: var(--status-sin-bg); color: var(--status-sin); }
 
+    .card-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+    .tag-pill {
+      font-family: var(--font-label);
+      font-size: 9px;
+      font-weight: 500;
+      padding: 2px 7px;
+      border-radius: 8px;
+      background: var(--bg-hover);
+      color: var(--text-muted);
+      letter-spacing: 0.2px;
+    }
+
     .stars { display: flex; gap: 2px; }
     .stars .star {
       cursor: pointer;
@@ -636,24 +648,24 @@
     const { useState, useEffect, useMemo, useCallback } = React;
 
     const DEFAULT_RESTAURANTS = [
-      { id: "odiseo-bistro", name: "Odiseo Bistro", zone: "Granada", cuisine: "Mediterránea / Autor", priceRange: "$80K–90K", priceMin: 80, priceMax: 90, rating: 4.7, reviews: 1671, highlight: "Coliflor horneado, arroz caldoso de mariscos", vibe: "Noir, atmosférico", reserva: true, closedDay: "Dom (solo almuerzo)", instagram: null },
-      { id: "platillos-voladores", name: "Platillos Voladores", zone: "Centenario", cuisine: "Fusión colombo-asiática", priceRange: "$56K–77K", priceMin: 56, priceMax: 77, rating: 4.7, reviews: 3610, highlight: "Ceviche con marañón, lomo Yin Yang", vibe: "Sofisticado, jardín con luciérnagas", reserva: true, closedDay: "Domingo", instagram: null },
-      { id: "antigua-contemporanea", name: "Antigua Contemporánea", zone: "San Antonio", cuisine: "Internacional / Fusión Pacífico", priceRange: "$60K–88K", priceMin: 60, priceMax: 88, rating: 4.7, reviews: 2020, highlight: "Pulpo, corvina contemporánea, salmón Montenegro", vibe: "Casa colonial con jardines, romántico", reserva: true, closedDay: "Domingo", instagram: null },
-      { id: "la-comitiva", name: "La Comitiva", zone: "San Fernando", cuisine: "Colombiana contemporánea", priceRange: "$55K–80K", priceMin: 55, priceMax: 80, rating: 4.7, reviews: 2368, highlight: "Ceviche mixto, arrechera, cócteles temáticos", vibe: "Casa antigua, jardín mágico, bar escondido", reserva: true, closedDay: "Abierto siempre", instagram: null },
-      { id: "sonoma", name: "Sonoma", zone: "El Peñón", cuisine: "Peruana", priceRange: "$50K–75K", priceMin: 50, priceMax: 75, rating: 4.7, reviews: 724, highlight: "Ceviche, lomo saltado, corvina a la chorrillana", vibe: "Acogedor, elegante sin pose", reserva: true, closedDay: "Dom (solo almuerzo)", instagram: null },
-      { id: "hacienda-del-bosque", name: "Hacienda del Bosque", zone: "Oeste (Río Cali)", cuisine: "Fusión valluna / Autor", priceRange: "$70K–100K+", priceMin: 70, priceMax: 100, rating: 4.7, reviews: 2786, highlight: "Mero encocado, acocado de mariscos", vibe: "Hacienda del s.XIX, río, naturaleza", reserva: true, closedDay: "Lunes", instagram: null },
-      { id: "storia-damore", name: "Storia D'Amore", zone: "Granada", cuisine: "Italiana", priceRange: "$50K–75K", priceMin: 50, priceMax: 75, rating: 4.7, reviews: 7865, highlight: "Pastas, gelato de pistacho, tiramisú", vibe: "Decoración IG, animado", reserva: false, closedDay: "Abierto siempre", instagram: null },
-      { id: "faro", name: "Faró", zone: "Granada / El Peñón", cuisine: "Mediterránea", priceRange: "$55K–85K", priceMin: 55, priceMax: 85, rating: 4.5, reviews: 1759, highlight: "Salmón con macadamia, música en vivo", vibe: "Terraza elegante, velas", reserva: true, closedDay: "Dom (solo almuerzo)", instagram: null },
-      { id: "citadino", name: "Citadino", zone: "El Peñón", cuisine: "Fusión / Coctelería", priceRange: "$50K–80K", priceMin: 50, priceMax: 80, rating: 4.4, reviews: 351, highlight: "Pulpo con babaganoush, steak con puré", vibe: "Tipo lobby bar 5 estrellas, DJ", reserva: true, closedDay: "Domingo", instagram: null },
-      { id: "la-boheme", name: "La Bohème", zone: "San Antonio", cuisine: "Latina / Coctelería", priceRange: "$45K–75K", priceMin: 45, priceMax: 75, rating: 4.4, reviews: 2448, highlight: "Bocconcini, vista panorámica de Cali", vibe: "Lounge con vista, cócteles de autor", reserva: true, closedDay: "Abierto siempre", instagram: null },
-      { id: "patio-santo", name: "Patio Santo", zone: "Ciudad Jardín", cuisine: "Mediterránea / Peruana", priceRange: "$55K–85K", priceMin: 55, priceMax: 85, rating: 4.5, reviews: 2369, highlight: "Shows en vivo, rosé sangría, mariscos", vibe: "Patio amplio, shows, festivo-elegante", reserva: true, closedDay: "Domingo", instagram: null },
-      { id: "furtivo", name: "Furtivo", zone: "El Peñón", cuisine: "Nikkei / Speakeasy", priceRange: "$50K–80K", priceMin: 50, priceMax: 80, rating: 4.8, reviews: 150, highlight: "Ceviches nikkei, sushi rolls, cócteles de autor", vibe: "Speakeasy años 20, entrada oculta, jazz", reserva: true, closedDay: "Abierto siempre", instagram: "furtivocali" },
-      { id: "palomulata", name: "Palomulata", zone: "La Flora (Norte)", cuisine: "Parrilla de autor / Steakhouse", priceRange: "$100K–200K", priceMin: 100, priceMax: 200, rating: 4.9, reviews: 1700, highlight: "Tomahawk, Short Ribs 8h, Empanadas Palomulata", vibe: "Elegante boutique, iluminación cálida, atención personalizada", reserva: true, closedDay: "Dom (horario reducido)", instagram: "palomulata" },
-      { id: "astro-soda", name: "Astro Soda", zone: "Granada", cuisine: "Bar gastronómico / Retro-futurista", priceRange: "$35K–55K", priceMin: 35, priceMax: 55, rating: 5.0, reviews: 88, highlight: "Pandebonos con mermelada, cóctel Antares con viche", vibe: "Retro-futurista 70s-80s, Hi-Fi, funky-cósmico", reserva: true, closedDay: "Abierto siempre", instagram: "astro.soda" },
-      { id: "izumi", name: "Izumi", zone: "Granada", cuisine: "Japonesa / Nikkei fusión", priceRange: "$50K–100K", priceMin: 50, priceMax: 100, rating: 4.9, reviews: 867, highlight: "Costillas Miso 18h, Gunkan Foie Gras, Yakimeshi", vibe: "Elegante, trendy, rooftop, DJ", reserva: true, closedDay: "Abierto siempre", instagram: "izumirestaurantco" },
-      { id: "macanudo-hifi", name: "Macanudo HiFi", zone: "Granada (Norte)", cuisine: "Pizza + Coctelería / Listening bar", priceRange: "$30K–55K", priceMin: 30, priceMax: 55, rating: null, reviews: 0, highlight: "Pizzas artesanales, cócteles de autor", vibe: "Listening bar Hi-Fi, house music, estético", reserva: false, closedDay: "Domingo y Lunes", instagram: "macanudo.hifi" },
-      { id: "bohio", name: "Bohío", zone: "Granada", cuisine: "Criolla del Nuevo Mundo", priceRange: "$60K–140K", priceMin: 60, priceMax: 140, rating: 4.4, reviews: 638, highlight: "Medallones de lomo, ceviche, arroz atollado", vibe: "Elegante-acogedor, música en vivo, terraza pet-friendly", reserva: true, closedDay: "Abierto siempre", instagram: "bohiorestaurante.cali" },
-      { id: "un-jardin-en-el-cielo", name: "Un Jardín en el Cielo", zone: "Cristo Rey (mirador)", cuisine: "Casual / Fusión", priceRange: "$28K–50K", priceMin: 28, priceMax: 50, rating: 3.9, reviews: 668, highlight: "Fundido de champiñones, pizza signature, vista panorámica", vibe: "Mirador al aire libre, atardecer, brisa, romántico", reserva: true, closedDay: "Lunes y Martes", instagram: "unjardinenelcielo" },
+      { id: "odiseo-bistro", name: "Odiseo Bistro", zone: "Granada", address: "Av. 9 Norte #10-107, Granada, Cali", cuisine: "Mediterránea / Autor", tags: ["mediterránea","de-autor","fine-dining","romántico"], priceTier: "$$$", priceRange: "$80K–90K", priceMin: 80, priceMax: 90, rating: 4.7, reviews: 1671, highlight: "Coliflor horneado, arroz caldoso de mariscos", vibe: "Noir, atmosférico", reserva: true, closedDay: "Dom (solo almuerzo)", instagram: null },
+      { id: "platillos-voladores", name: "Platillos Voladores", zone: "Centenario", address: "Av. 3 Norte #7-19, Centenario, Cali", cuisine: "Fusión colombo-asiática", tags: ["asiática","colombiana","fusión","romántico"], priceTier: "$$", priceRange: "$56K–77K", priceMin: 56, priceMax: 77, rating: 4.7, reviews: 3610, highlight: "Ceviche con marañón, lomo Yin Yang", vibe: "Sofisticado, jardín con luciérnagas", reserva: true, closedDay: "Domingo", instagram: null },
+      { id: "antigua-contemporanea", name: "Antigua Contemporánea", zone: "San Antonio", address: "Carrera 10 #1-39, San Antonio, Cali", cuisine: "Internacional / Fusión Pacífico", tags: ["internacional","fusión","mariscos","romántico"], priceTier: "$$$", priceRange: "$60K–88K", priceMin: 60, priceMax: 88, rating: 4.7, reviews: 2020, highlight: "Pulpo, corvina contemporánea, salmón Montenegro", vibe: "Casa colonial con jardines, romántico", reserva: true, closedDay: "Domingo", instagram: null },
+      { id: "la-comitiva", name: "La Comitiva", zone: "San Fernando", address: "Calle 4 #34-32, San Fernando, Cali", cuisine: "Colombiana contemporánea", tags: ["colombiana","fusión","coctelería","para-grupos"], priceTier: "$$", priceRange: "$55K–80K", priceMin: 55, priceMax: 80, rating: 4.7, reviews: 2368, highlight: "Ceviche mixto, arrechera, cócteles temáticos", vibe: "Casa antigua, jardín mágico, bar escondido", reserva: true, closedDay: "Abierto siempre", instagram: null },
+      { id: "sonoma", name: "Sonoma", zone: "El Peñón", address: "Carrera 3A Oeste #3-13, El Peñón, Cali", cuisine: "Peruana", tags: ["peruana","tradicional","mariscos"], priceTier: "$$", priceRange: "$50K–75K", priceMin: 50, priceMax: 75, rating: 4.7, reviews: 724, highlight: "Ceviche, lomo saltado, corvina a la chorrillana", vibe: "Acogedor, elegante sin pose", reserva: true, closedDay: "Dom (solo almuerzo)", instagram: null },
+      { id: "hacienda-del-bosque", name: "Hacienda del Bosque", zone: "Oeste (Río Cali)", address: "Carrera 2 Oeste #14-250, Cali", cuisine: "Fusión valluna / Autor", tags: ["colombiana","de-autor","fusión","mariscos","romántico"], priceTier: "$$$", priceRange: "$70K–100K+", priceMin: 70, priceMax: 100, rating: 4.7, reviews: 2786, highlight: "Mero encocado, acocado de mariscos", vibe: "Hacienda del s.XIX, río, naturaleza", reserva: true, closedDay: "Lunes", instagram: null },
+      { id: "storia-damore", name: "Storia D'Amore", zone: "Granada", address: "Av. 9N #14N-46, Granada, Cali", cuisine: "Italiana", tags: ["italiana","pastas","para-grupos"], priceTier: "$$", priceRange: "$50K–75K", priceMin: 50, priceMax: 75, rating: 4.7, reviews: 7865, highlight: "Pastas, gelato de pistacho, tiramisú", vibe: "Decoración IG, animado", reserva: false, closedDay: "Abierto siempre", instagram: null },
+      { id: "faro", name: "Faró", zone: "Granada / El Peñón", address: "Carrera 3A Oeste #3-39, El Peñón, Cali", cuisine: "Mediterránea", tags: ["mediterránea","música-en-vivo","romántico"], priceTier: "$$", priceRange: "$55K–85K", priceMin: 55, priceMax: 85, rating: 4.5, reviews: 1759, highlight: "Salmón con macadamia, música en vivo", vibe: "Terraza elegante, velas", reserva: true, closedDay: "Dom (solo almuerzo)", instagram: null },
+      { id: "citadino", name: "Citadino", zone: "El Peñón", address: "Calle 1 Oeste #2-24, El Peñón, Cali", cuisine: "Fusión / Coctelería", tags: ["fusión","coctelería","fine-dining"], priceTier: "$$", priceRange: "$50K–80K", priceMin: 50, priceMax: 80, rating: 4.4, reviews: 351, highlight: "Pulpo con babaganoush, steak con puré", vibe: "Tipo lobby bar 5 estrellas, DJ", reserva: true, closedDay: "Domingo", instagram: null },
+      { id: "la-boheme", name: "La Bohème", zone: "San Antonio", address: "Calle 1 #6-09, San Antonio, Cali", cuisine: "Latina / Coctelería", tags: ["internacional","coctelería","mirador"], priceTier: "$$", priceRange: "$45K–75K", priceMin: 45, priceMax: 75, rating: 4.4, reviews: 2448, highlight: "Bocconcini, vista panorámica de Cali", vibe: "Lounge con vista, cócteles de autor", reserva: true, closedDay: "Abierto siempre", instagram: null },
+      { id: "patio-santo", name: "Patio Santo", zone: "Ciudad Jardín", address: "Calle 18 #105-52, Ciudad Jardín, Cali", cuisine: "Mediterránea / Peruana", tags: ["mediterránea","peruana","música-en-vivo","para-grupos"], priceTier: "$$", priceRange: "$55K–85K", priceMin: 55, priceMax: 85, rating: 4.5, reviews: 2369, highlight: "Shows en vivo, rosé sangría, mariscos", vibe: "Patio amplio, shows, festivo-elegante", reserva: true, closedDay: "Domingo", instagram: null },
+      { id: "furtivo", name: "Furtivo", zone: "El Peñón", address: "Calle 1 Oeste #1-32, El Peñón, Cali", cuisine: "Nikkei / Speakeasy", tags: ["japonesa","fusión","speakeasy","coctelería"], priceTier: "$$", priceRange: "$50K–80K", priceMin: 50, priceMax: 80, rating: 4.8, reviews: 150, highlight: "Ceviches nikkei, sushi rolls, cócteles de autor", vibe: "Speakeasy años 20, entrada oculta, jazz", reserva: true, closedDay: "Abierto siempre", instagram: "furtivocali" },
+      { id: "palomulata", name: "Palomulata", zone: "La Flora (Norte)", address: "Calle 38 Norte #4BN-09, La Flora, Cali", cuisine: "Parrilla de autor", tags: ["parrilla","de-autor","fine-dining"], priceTier: "$$$$", priceRange: "$100K–200K", priceMin: 100, priceMax: 200, rating: 4.9, reviews: 1700, highlight: "Tomahawk, Short Ribs 8h, Empanadas Palomulata", vibe: "Elegante boutique, iluminación cálida", reserva: true, closedDay: "Dom (horario reducido)", instagram: "palomulata" },
+      { id: "astro-soda", name: "Astro Soda", zone: "Granada", address: "Av. 9 Norte #18N-25, Granada, Cali", cuisine: "Bar gastronómico", tags: ["bar-gastronómico","coctelería","casual"], priceTier: "$", priceRange: "$35K–55K", priceMin: 35, priceMax: 55, rating: 5.0, reviews: 88, highlight: "Pandebonos con mermelada, cóctel Antares con viche", vibe: "Retro-futurista 70s-80s, Hi-Fi, funky-cósmico", reserva: true, closedDay: "Abierto siempre", instagram: "astro.soda" },
+      { id: "izumi", name: "Izumi", zone: "Granada", address: "Av. 9 Nte. #17 Norte-11, Granada, Cali", cuisine: "Japonesa / Nikkei fusión", tags: ["japonesa","fusión","de-autor","coctelería"], priceTier: "$$$", priceRange: "$50K–100K", priceMin: 50, priceMax: 100, rating: 4.9, reviews: 867, highlight: "Costillas Miso 18h, Gunkan Foie Gras, Yakimeshi", vibe: "Elegante, trendy, rooftop, DJ", reserva: true, closedDay: "Abierto siempre", instagram: "izumirestaurantco" },
+      { id: "macanudo-hifi", name: "Macanudo HiFi", zone: "Granada (Norte)", address: "Av. 9 Norte #15A Norte-31, Granada, Cali", cuisine: "Pizza + Coctelería", tags: ["pizzería","bar-gastronómico","coctelería","casual"], priceTier: "$", priceRange: "$30K–55K", priceMin: 30, priceMax: 55, rating: null, reviews: 0, highlight: "Pizzas artesanales, cócteles de autor", vibe: "Listening bar Hi-Fi, house music, estético", reserva: false, closedDay: "Domingo y Lunes", instagram: "macanudo.hifi" },
+      { id: "bohio", name: "Bohío", zone: "Granada", address: "Av. 9 Nte. #15N-40, Granada, Cali", cuisine: "Criolla del Nuevo Mundo", tags: ["colombiana","de-autor","música-en-vivo","pet-friendly"], priceTier: "$$$", priceRange: "$60K–140K", priceMin: 60, priceMax: 140, rating: 4.4, reviews: 638, highlight: "Medallones de lomo, ceviche, arroz atollado", vibe: "Elegante-acogedor, música en vivo, terraza", reserva: true, closedDay: "Abierto siempre", instagram: "bohiorestaurante.cali" },
+      { id: "un-jardin-en-el-cielo", name: "Un Jardín en el Cielo", zone: "Cristo Rey (mirador)", address: "Km 2 Vía a Cristo Rey, Cali", cuisine: "Casual / Fusión", tags: ["casual","mirador","romántico","pet-friendly"], priceTier: "$", priceRange: "$28K–50K", priceMin: 28, priceMax: 50, rating: 3.9, reviews: 668, highlight: "Fundido de champiñones, pizza signature, vista panorámica", vibe: "Mirador al aire libre, atardecer, brisa", reserva: true, closedDay: "Lunes y Martes", instagram: "unjardinenelcielo" },
     ];
 
     const dbRef = db.ref('cali-gastro');
@@ -691,8 +703,13 @@
       return (
         <div className="card" onClick={onClick}>
           <div className="card-name">{restaurant.name}</div>
-          <span className="card-zone">{restaurant.zone}</span>
-          <div className="card-cuisine">{restaurant.cuisine}</div>
+          <div style={{display:'flex', gap:6, alignItems:'center', flexWrap:'wrap', marginBottom:4}}>
+            <span className="card-zone">{restaurant.zone}</span>
+            {restaurant.priceTier && <span className="card-zone" style={{background:'var(--status-fui-bg)', color:'var(--accent-gold)'}}>{restaurant.priceTier}</span>}
+          </div>
+          <div className="card-tags">
+            {(restaurant.tags || []).slice(0, 3).map(t => <span key={t} className="tag-pill">{t}</span>)}
+          </div>
           <div className="card-meta">
             <span className="card-price">{restaurant.priceRange}</span>
             {restaurant.rating && (
@@ -783,6 +800,12 @@
 
             <div className="detail-section">
               <h3>Información pública</h3>
+              {restaurant.address && (
+                <div className="detail-row">
+                  <span className="label">Dirección</span>
+                  <span className="value">{restaurant.address}</span>
+                </div>
+              )}
               <div className="detail-row">
                 <span className="label">Rating</span>
                 <span className="value">{restaurant.rating ? `★ ${restaurant.rating} (${restaurant.reviews.toLocaleString()} reseñas)` : '—'}</span>
@@ -811,6 +834,13 @@
                 <div className="detail-row">
                   <span className="label">Instagram</span>
                   <span className="value">@{restaurant.instagram}</span>
+                </div>
+              )}
+              {(restaurant.tags || []).length > 0 && (
+                <div style={{marginTop:12}}>
+                  <div className="card-tags">
+                    {restaurant.tags.map(t => <span key={t} className="tag-pill">{t}</span>)}
+                  </div>
                 </div>
               )}
             </div>
@@ -988,6 +1018,8 @@
       const [view, setView] = useState('grid');
       const [search, setSearch] = useState('');
       const [zoneFilter, setZoneFilter] = useState('Todas');
+      const [tagFilter, setTagFilter] = useState('');
+      const [priceFilter, setPriceFilter] = useState('');
       const [statusFilter, setStatusFilter] = useState('todos');
       const [sortBy, setSortBy] = useState('rating');
       const [sortDesc, setSortDesc] = useState(true);
@@ -1014,17 +1046,25 @@
         return ['Todas', ...z.sort()];
       }, [data.restaurants]);
 
+      const allTags = useMemo(() => {
+        const t = new Set();
+        data.restaurants.forEach(r => (r.tags || []).forEach(tag => t.add(tag)));
+        return [...t].sort();
+      }, [data.restaurants]);
+
       const filtered = useMemo(() => {
         return data.restaurants
           .filter(r => {
             if (zoneFilter !== 'Todas' && r.zone !== zoneFilter) return false;
+            if (tagFilter && !(r.tags || []).includes(tagFilter)) return false;
+            if (priceFilter && r.priceTier !== priceFilter) return false;
             if (statusFilter !== 'todos') {
               const ps = (data.personal[r.id] || {}).status || 'sin-decidir';
               if (ps !== statusFilter) return false;
             }
             if (search) {
               const q = search.toLowerCase();
-              return r.name.toLowerCase().includes(q) || r.cuisine.toLowerCase().includes(q) || r.zone.toLowerCase().includes(q) || (r.highlight && r.highlight.toLowerCase().includes(q));
+              return r.name.toLowerCase().includes(q) || r.cuisine.toLowerCase().includes(q) || r.zone.toLowerCase().includes(q) || (r.highlight && r.highlight.toLowerCase().includes(q)) || (r.tags || []).some(t => t.includes(q));
             }
             return true;
           })
@@ -1036,7 +1076,7 @@
             if (typeof va === 'string') return sortDesc ? vb.localeCompare(va) : va.localeCompare(vb);
             return sortDesc ? vb - va : va - vb;
           });
-      }, [data, zoneFilter, statusFilter, search, sortBy, sortDesc]);
+      }, [data, zoneFilter, tagFilter, priceFilter, statusFilter, search, sortBy, sortDesc]);
 
       const stats = useMemo(() => {
         const total = data.restaurants.length;
@@ -1104,6 +1144,17 @@
             />
             <select className="filter-select" value={zoneFilter} onChange={e => setZoneFilter(e.target.value)}>
               {zones.map(z => <option key={z} value={z}>{z}</option>)}
+            </select>
+            <select className="filter-select" value={tagFilter} onChange={e => setTagFilter(e.target.value)}>
+              <option value="">Categoría</option>
+              {allTags.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+            <select className="filter-select" value={priceFilter} onChange={e => setPriceFilter(e.target.value)}>
+              <option value="">Precio</option>
+              <option value="$">$ (&lt;40K)</option>
+              <option value="$$">$$ (40K–70K)</option>
+              <option value="$$$">$$$ (70K–120K)</option>
+              <option value="$$$$">$$$$ (&gt;120K)</option>
             </select>
             <div className="status-chips">
               {[{key:'todos',label:'Todos'},{key:'quiero-ir',label:'Quiero ir'},{key:'ya-fui',label:'Ya fui'},{key:'no-interesa',label:'No me interesa'},{key:'sin-decidir',label:'Sin decidir'}].map(s => (
