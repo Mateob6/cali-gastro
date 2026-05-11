@@ -1079,13 +1079,21 @@
     async function compressImage(file, maxWidth, quality) {
       maxWidth = maxWidth || 800;
       quality = quality || 0.65;
-      var input = file;
       var isHeic = file.type === 'image/heic' || file.type === 'image/heif'
         || /\.heic$/i.test(file.name) || /\.heif$/i.test(file.name);
-      if (isHeic && typeof heic2any !== 'undefined') {
-        input = await heic2any({ blob: file, toType: 'image/jpeg', quality: quality });
+      var bitmap;
+      if (isHeic) {
+        try { bitmap = await createImageBitmap(file); } catch(e1) {
+          try {
+            var converted = await heic2any({ blob: file, toType: 'image/jpeg', quality: quality });
+            bitmap = await createImageBitmap(converted);
+          } catch(e2) {
+            throw new Error('No se pudo procesar este HEIC. Conviértelo a JPEG primero (abrir con Vista Previa → Archivo → Exportar → JPEG).');
+          }
+        }
+      } else {
+        bitmap = await createImageBitmap(file);
       }
-      var bitmap = await createImageBitmap(input);
       var w = bitmap.width, h = bitmap.height;
       if (w > maxWidth) { h = Math.round((h * maxWidth) / w); w = maxWidth; }
       var canvas = document.createElement('canvas');
