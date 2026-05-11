@@ -1076,24 +1076,22 @@
     const ALLOWED_EMAILS = ['mbcvarios019@gmail.com', 'cnscisabelacas@gmail.com', 'mateo.belalcazar6@gmail.com'];
 
     function compressImage(file, maxWidth, quality) {
-      maxWidth = maxWidth || 1200;
-      quality = quality || 0.8;
+      maxWidth = maxWidth || 800;
+      quality = quality || 0.65;
       return new Promise(function(resolve) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-          var img = new Image();
-          img.onload = function() {
-            var canvas = document.createElement('canvas');
-            var w = img.width, h = img.height;
-            if (w > maxWidth) { h = (h * maxWidth) / w; w = maxWidth; }
-            canvas.width = w;
-            canvas.height = h;
-            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-            canvas.toBlob(function(blob) { resolve(blob); }, 'image/jpeg', quality);
-          };
-          img.src = e.target.result;
+        var url = URL.createObjectURL(file);
+        var img = new Image();
+        img.onload = function() {
+          URL.revokeObjectURL(url);
+          var canvas = document.createElement('canvas');
+          var w = img.width, h = img.height;
+          if (w > maxWidth) { h = (h * maxWidth) / w; w = maxWidth; }
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          canvas.toBlob(function(blob) { resolve(blob); }, 'image/jpeg', quality);
         };
-        reader.readAsDataURL(file);
+        img.src = url;
       });
     }
 
