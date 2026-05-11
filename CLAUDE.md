@@ -2,7 +2,7 @@
 
 ## Overview
 
-Tracker colaborativo de restaurantes en Cali. Single HTML file con React + Firebase Realtime Database + Leaflet.js para mapa interactivo. Diseño "Earth & Terracotta" generado con Stitch.
+Tracker colaborativo de restaurantes en Cali y alrededores (Palmira, etc.). Single HTML file con React + Firebase Realtime Database + Leaflet.js para mapa interactivo. Diseño "Earth & Terracotta" generado con Stitch.
 
 - **Página:** https://mateob6.github.io/cali-gastro/
 - **Firebase:** https://cali-gastro-default-rtdb.firebaseio.com/
@@ -13,10 +13,41 @@ Tracker colaborativo de restaurantes en Cali. Single HTML file con React + Fireb
 
 - React 18 via CDN (babel standalone, JSX in-browser)
 - Firebase Realtime Database (compat SDK via CDN)
+- Firebase Authentication (Google Sign-in, restringido a 2 emails)
+- Firebase Storage (fotos de restaurantes, comprimidas client-side)
 - Leaflet.js 1.9.4 + OpenStreetMap (mapa interactivo, sin API key)
 - Material Symbols Outlined (iconos)
 - GitHub Pages para hosting
 - Un solo archivo: `index.html`
+
+## Autenticación
+
+Google Sign-in restringido a dos cuentas:
+- `mbcvarios019@gmail.com` (Mateo)
+- `mateo.belalcazar6@gmail.com` (Mateo)
+- `cnscisabelacas@gmail.com` (Isabela)
+
+La app muestra una pantalla de login antes de cargar datos. El avatar del usuario aparece como pill fija en la esquina superior derecha (click → sign out). Emails no autorizados son rechazados automáticamente.
+
+## Fotos
+
+Galería de fotos por restaurante, compartida entre ambos usuarios.
+
+### Storage: `photos/{restaurantId}/{timestamp}_{uid_short}.jpg`
+### Realtime DB: `cali-gastro/photos/{restaurantId}/{photoId}`
+
+```javascript
+{
+  url: "https://firebasestorage.googleapis.com/...",
+  storagePath: "photos/odiseo-bistro/1718300000000_abc123.jpg",
+  uploadedBy: "Mateo",
+  uploadedByUid: "abc123",
+  uploadedAt: 1718300000000,
+  caption: ""
+}
+```
+
+Las fotos se comprimen a JPEG (max 1200px, quality 0.8) antes de subir. Se muestran en un grid 3 columnas dentro del DetailPanel, entre "Información pública" y "Mi experiencia". Click en thumbnail abre lightbox fullscreen con navegación.
 
 ## Páginas
 
@@ -24,14 +55,17 @@ Tracker colaborativo de restaurantes en Cali. Single HTML file con React + Fireb
 |--------|-----------|-------------|
 | **Inicio** | `HomePage` | Landing con stats, restaurantes destacados, accesos rápidos a lista y mapa |
 | **Restaurantes** | `ListPage` | Grid/tabla con filtros (zona, categoría, precio, status), búsqueda, ordenamiento, detalle, agregar |
+| **Fotos** | `FeedPage` | Feed estilo Instagram: fotos agrupadas por restaurante, orden cronológico, lightbox, link a ficha |
 | **Mapa** | `MapPage` | Mapa interactivo de Cali con marcadores color-coded por status, popups, filtro de status |
 
-Navegación: `BottomNav` persistente (Inicio · Restaurantes · Mapa). Routing por estado (`page`), sin React Router.
+Navegación: `BottomNav` persistente (Inicio · Restaurantes · Fotos · Mapa). Routing por estado (`page`), sin React Router.
 
 ## Arquitectura de componentes
 
 ```
-App (estado global, Firebase listener, handlers)
+App (estado global, Firebase listener, auth, handlers)
+├── Login screen (si no hay user autenticado)
+├── User pill (avatar + nombre, fijo top-right, click → sign out)
 ├── BottomNav (fijo, 3 items)
 ├── HomePage (stats, destacados, nav cards)
 │   ├── StatCard
@@ -41,11 +75,13 @@ App (estado global, Firebase listener, handlers)
 │   ├── RestaurantCard (tarjeta con tri-state buttons)
 │   ├── RestaurantTable (vista tabla)
 │   └── FAB (+)
+├── FeedPage (feed de fotos agrupado por restaurante)
 ├── MapPage (Leaflet.js)
 │   ├── Marcadores SVG color-coded
 │   └── Popups con "Ver detalle"
 ├── DetailPanel (modal compartido entre list y map)
 │   ├── Info pública (dirección, rating, precio, platos, vibe, horario, reserva, instagram, tags)
+│   ├── PhotoGallery (grid de fotos + upload + lightbox)
 │   └── Mi experiencia (rating personal, fecha, pedido, gasto, notas, volvería)
 ├── AddModal (formulario completo)
 ├── StarRating (estrellas clickeables)
@@ -103,7 +139,7 @@ Cuando el usuario pida agregar restaurantes, seguir este flujo:
 Mandar un agente (general-purpose) POR CADA restaurante con este prompt:
 
 ```
-Busca el restaurante "[NOMBRE]" en Cali, Colombia. Devuelve ÚNICAMENTE un bloque JSON válido con esta estructura exacta (sin texto adicional antes ni después del JSON):
+Busca el restaurante "[NOMBRE]" en Cali, Colombia (o la ciudad indicada por el usuario). Devuelve ÚNICAMENTE un bloque JSON válido con esta estructura exacta (sin texto adicional antes ni después del JSON):
 
 {
   "id": "[nombre-en-kebab-case]",
@@ -187,8 +223,13 @@ cali-gastro/
 ├── restaurants/
 │   ├── {id}/  → datos públicos + lat/lng + tags
 │   └── ...
-└── personal/
-    ├── {id}/  → status, myRating, notes, dateVisited, whatIOrdered, totalSpent, wouldReturn
+├── personal/
+│   ├── {id}/  → status, myRating, notes, dateVisited, whatIOrdered, totalSpent, wouldReturn
+│   └── ...
+└── photos/
+    ├── {restaurantId}/
+    │   ├── {photoId}/  → url, storagePath, uploadedBy, uploadedByUid, uploadedAt, caption
+    │   └── ...
     └── ...
 ```
 

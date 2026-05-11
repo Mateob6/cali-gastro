@@ -13,6 +13,8 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
   <script>
     firebase.initializeApp({
       apiKey: "AIzaSyD-dTbFCte56n4kNpq_0R6Q4-Kcbc4UIQE",
@@ -24,6 +26,8 @@
       appId: "1:933093303244:web:aff1038c3aa5d1f7d07369"
     });
     var db = firebase.database();
+    var auth = firebase.auth();
+    var storage = firebase.storage();
   </script>
   <style>
     :root {
@@ -643,6 +647,93 @@
       box-shadow: 0 0 0 3px rgba(155,63,37,0.08);
     }
 
+    /* ---- Photo Gallery ---- */
+    .photo-gallery { margin-top: 12px; }
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .photo-thumb {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      border: 1px solid var(--outline-variant);
+    }
+    .photo-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s; }
+    .photo-thumb:hover img { transform: scale(1.05); }
+    .photo-thumb .photo-delete-btn {
+      position: absolute; top: 4px; right: 4px;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: rgba(0,0,0,0.6); color: white; border: none;
+      font-size: 14px; cursor: pointer;
+      display: none; align-items: center; justify-content: center; line-height: 1;
+    }
+    .photo-thumb:hover .photo-delete-btn { display: flex; }
+    .photo-upload-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 12px;
+      background: var(--surface); border: 2px dashed var(--outline-variant);
+      border-radius: var(--radius); color: var(--outline);
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      transition: all 0.15s; font-family: var(--font-body);
+    }
+    .photo-upload-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(155,63,37,0.03); }
+    .photo-upload-btn:disabled { opacity: 0.6; cursor: wait; }
+
+    /* ---- Lightbox ---- */
+    .lightbox-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+      z-index: 300; display: flex; align-items: center; justify-content: center;
+      animation: scaleIn 0.2s ease-out;
+    }
+    .lightbox-img { max-width: 92vw; max-height: 88vh; object-fit: contain; border-radius: 8px; }
+    .lightbox-close {
+      position: absolute; top: 16px; right: 16px;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(255,255,255,0.15); color: white; border: none;
+      font-size: 20px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lightbox-close:hover { background: rgba(255,255,255,0.25); }
+    .lightbox-nav {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(255,255,255,0.15); color: white; border: none;
+      font-size: 20px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lightbox-nav:hover { background: rgba(255,255,255,0.25); }
+    .lightbox-nav.prev { left: 16px; }
+    .lightbox-nav.next { right: 16px; }
+    .lightbox-caption {
+      position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+      color: rgba(255,255,255,0.8); font-size: 13px; font-family: var(--font-body);
+      text-align: center; max-width: 80%;
+    }
+    @media (max-width: 768px) {
+      .photo-grid { gap: 6px; }
+      .lightbox-nav { display: none; }
+    }
+
+    /* ---- Login Screen ---- */
+    .login-screen {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 80vh; gap: 24px; padding: 24px;
+    }
+    .user-pill {
+      position: fixed; top: 12px; right: 16px; z-index: 1001;
+      display: flex; align-items: center; gap: 8px;
+      background: #ffffff; border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-full); padding: 4px 12px 4px 4px;
+      box-shadow: var(--shadow-soft); cursor: pointer;
+    }
+    .user-pill img { width: 28px; height: 28px; border-radius: 50%; }
+    .user-pill span { font-size: 12px; font-weight: 500; color: var(--on-surface-variant); }
+
     .toggle-switch {
       display: flex;
       align-items: center;
@@ -825,6 +916,97 @@
       font-size: 14px;
     }
 
+    /* ---- Feed Page ---- */
+    .feed-page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 24px 96px;
+    }
+    .feed-title {
+      font-family: var(--font-headline);
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+    .feed-subtitle {
+      font-size: 13px;
+      color: var(--on-surface-variant);
+      margin-bottom: 28px;
+    }
+    .feed-group {
+      margin-bottom: 36px;
+    }
+    .feed-group-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+      z-index: 10;
+      border-bottom: 1px solid var(--outline-variant);
+      margin-bottom: 12px;
+    }
+    .feed-group-header .feed-group-info h3 {
+      font-family: var(--font-headline);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--on-surface);
+      margin: 0;
+    }
+    .feed-group-header .feed-group-info span {
+      font-size: 12px;
+      color: var(--on-surface-variant);
+    }
+    .feed-group-header .feed-group-action {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--primary);
+      background: none;
+      border: 1px solid var(--primary);
+      border-radius: var(--radius-full);
+      padding: 5px 14px;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: all 0.15s;
+    }
+    .feed-group-header .feed-group-action:hover {
+      background: var(--primary);
+      color: white;
+    }
+    .feed-photo-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 6px 8px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.55));
+      border-radius: 0 0 8px 8px;
+      color: white;
+      font-size: 10px;
+      font-family: var(--font-body);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .photo-thumb:hover .feed-photo-overlay { opacity: 1; }
+    .feed-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 50vh;
+      gap: 16px;
+      color: var(--on-surface-variant);
+      text-align: center;
+    }
+    .feed-empty .material-symbols-outlined {
+      font-size: 56px;
+      opacity: 0.4;
+    }
+    .feed-empty p { font-size: 14px; max-width: 280px; }
+
     /* ---- Bottom Nav ---- */
     .bottom-nav {
       position: fixed;
@@ -891,6 +1073,30 @@
   <script type="text/babel">
     const { useState, useEffect, useMemo, useCallback, useRef } = React;
 
+    const ALLOWED_EMAILS = ['mbcvarios019@gmail.com', 'cnscisabelacas@gmail.com', 'mateo.belalcazar6@gmail.com'];
+
+    function compressImage(file, maxWidth, quality) {
+      maxWidth = maxWidth || 1200;
+      quality = quality || 0.8;
+      return new Promise(function(resolve) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var img = new Image();
+          img.onload = function() {
+            var canvas = document.createElement('canvas');
+            var w = img.width, h = img.height;
+            if (w > maxWidth) { h = (h * maxWidth) / w; w = maxWidth; }
+            canvas.width = w;
+            canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            canvas.toBlob(function(blob) { resolve(blob); }, 'image/jpeg', quality);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
     const DEFAULT_RESTAURANTS = [
       { id: "odiseo-bistro", name: "Odiseo Bistro", zone: "Granada", address: "Av. 9 Norte #10-107, Granada, Cali", cuisine: "Mediterránea / Autor", tags: ["mediterránea","de-autor","fine-dining","romántico"], priceTier: "$$$", priceRange: "$80K–90K", priceMin: 80, priceMax: 90, rating: 4.7, reviews: 1671, highlight: "Coliflor horneado, arroz caldoso de mariscos", vibe: "Noir, atmosférico", reserva: true, closedDay: "Dom (solo almuerzo)", instagram: null, lat: 3.4573, lng: -76.5360 },
       { id: "platillos-voladores", name: "Platillos Voladores", zone: "Centenario", address: "Av. 3 Norte #7-19, Centenario, Cali", cuisine: "Fusión colombo-asiática", tags: ["asiática","colombiana","fusión","romántico"], priceTier: "$$", priceRange: "$56K–77K", priceMin: 56, priceMax: 77, rating: 4.7, reviews: 3610, highlight: "Ceviche con marañón, lomo Yin Yang", vibe: "Sofisticado, jardín con luciérnagas", reserva: true, closedDay: "Domingo", instagram: null, lat: 3.4536, lng: -76.5372 },
@@ -940,6 +1146,76 @@
     function StatusBadge({ status }) {
       const labels = { 'quiero-ir': 'Quiero ir', 'ya-fui': 'Ya fui', 'no-interesa': 'No me interesa', 'sin-decidir': 'Sin decidir' };
       return <span className={`td-status ${status}`}>{labels[status] || labels['sin-decidir']}</span>;
+    }
+
+    function PhotoGallery({ restaurantId, photos, onUpload, onDelete }) {
+      const [lightboxIndex, setLightboxIndex] = useState(null);
+      const [uploading, setUploading] = useState(false);
+      const fileInputRef = useRef(null);
+
+      const photoList = useMemo(() => {
+        if (!photos) return [];
+        return Object.entries(photos)
+          .map(([id, d]) => ({ id, ...d }))
+          .sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
+      }, [photos]);
+
+      const handleFileChange = async (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+        setUploading(true);
+        for (const file of files) { await onUpload(restaurantId, file); }
+        setUploading(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      };
+
+      const handleDel = (e, photo) => {
+        e.stopPropagation();
+        if (confirm('¿Eliminar esta foto?')) onDelete(restaurantId, photo.id, photo.storagePath);
+      };
+
+      return (
+        <div className="photo-gallery">
+          {photoList.length > 0 && (
+            <div className="photo-grid">
+              {photoList.map((photo, idx) => (
+                <div key={photo.id} className="photo-thumb" onClick={() => setLightboxIndex(idx)}>
+                  <img src={photo.url} alt={photo.caption || 'Foto'} loading="lazy" />
+                  <button className="photo-delete-btn" onClick={(e) => handleDel(e, photo)}>&times;</button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <input ref={fileInputRef} type="file" accept="image/*" multiple capture="environment" style={{display:'none'}} onChange={handleFileChange} />
+          <button className="photo-upload-btn" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+            <span className="material-symbols-outlined" style={{fontSize:20}}>{uploading ? 'hourglass_top' : 'add_photo_alternate'}</span>
+            {uploading ? 'Subiendo...' : 'Agregar fotos' + (photoList.length > 0 ? ' (' + photoList.length + ')' : '')}
+          </button>
+
+          {lightboxIndex !== null && photoList[lightboxIndex] && (
+            <div className="lightbox-overlay" onClick={() => setLightboxIndex(null)}>
+              <button className="lightbox-close" onClick={() => setLightboxIndex(null)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+              {photoList.length > 1 && (
+                <>
+                  <button className="lightbox-nav prev" onClick={(e) => { e.stopPropagation(); setLightboxIndex(lightboxIndex > 0 ? lightboxIndex - 1 : photoList.length - 1); }}>
+                    <span className="material-symbols-outlined">chevron_left</span>
+                  </button>
+                  <button className="lightbox-nav next" onClick={(e) => { e.stopPropagation(); setLightboxIndex(lightboxIndex < photoList.length - 1 ? lightboxIndex + 1 : 0); }}>
+                    <span className="material-symbols-outlined">chevron_right</span>
+                  </button>
+                </>
+              )}
+              <img className="lightbox-img" src={photoList[lightboxIndex].url} alt="" onClick={(e) => e.stopPropagation()} />
+              <div className="lightbox-caption">
+                {photoList[lightboxIndex].uploadedBy} &middot; {new Date(photoList[lightboxIndex].uploadedAt).toLocaleDateString('es-CO')}
+              </div>
+            </div>
+          )}
+        </div>
+      );
     }
 
     function RestaurantCard({ restaurant, personal, onClick, onRate, onStatusChange }) {
@@ -1031,7 +1307,7 @@
       );
     }
 
-    function DetailPanel({ restaurant, personal, onClose, onSave, onDelete }) {
+    function DetailPanel({ restaurant, personal, photos, onClose, onSave, onDelete, onPhotoUpload, onPhotoDelete }) {
       const [p, setP] = useState(personal || { status: 'sin-decidir', myRating: 0, dateVisited: '', whatIOrdered: '', totalSpent: '', notes: '', wouldReturn: null });
 
       const statusOptions = [
@@ -1104,6 +1380,16 @@
                   </div>
                 </div>
               )}
+            </div>
+
+            <div className="detail-section">
+              <h3>Fotos</h3>
+              <PhotoGallery
+                restaurantId={restaurant.id}
+                photos={photos}
+                onUpload={onPhotoUpload}
+                onDelete={onPhotoDelete}
+              />
             </div>
 
             <div className="detail-section">
@@ -1273,11 +1559,113 @@
       );
     }
 
+    /* ---- Feed Page ---- */
+    function FeedPage({ restaurants, photos, personalData, onSelectRestaurant }) {
+      const [lightboxData, setLightboxData] = useState(null);
+
+      const groups = useMemo(() => {
+        if (!photos || Object.keys(photos).length === 0) return [];
+        const result = [];
+        Object.entries(photos).forEach(([restaurantId, photoObj]) => {
+          const restaurant = restaurants.find(r => r.id === restaurantId);
+          if (!restaurant || !photoObj) return;
+          const photoList = Object.entries(photoObj)
+            .map(([id, d]) => ({ id, restaurantId, ...d }))
+            .sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
+          if (photoList.length > 0) {
+            result.push({ restaurant, photos: photoList, latestAt: photoList[0].uploadedAt || 0 });
+          }
+        });
+        result.sort((a, b) => b.latestAt - a.latestAt);
+        return result;
+      }, [photos, restaurants]);
+
+      const totalPhotos = groups.reduce((sum, g) => sum + g.photos.length, 0);
+
+      const openLightbox = (groupIdx, photoIdx) => {
+        setLightboxData({ groupIdx, photoIdx });
+      };
+
+      const currentGroup = lightboxData ? groups[lightboxData.groupIdx] : null;
+      const currentPhoto = currentGroup ? currentGroup.photos[lightboxData.photoIdx] : null;
+      const navLightbox = (dir) => {
+        if (!currentGroup) return;
+        const allPhotos = groups.flatMap((g, gi) => g.photos.map((p, pi) => ({ gi, pi })));
+        const currentFlat = allPhotos.findIndex(x => x.gi === lightboxData.groupIdx && x.pi === lightboxData.photoIdx);
+        const next = (currentFlat + dir + allPhotos.length) % allPhotos.length;
+        setLightboxData({ groupIdx: allPhotos[next].gi, photoIdx: allPhotos[next].pi });
+      };
+
+      if (groups.length === 0) {
+        return (
+          <div className="feed-page">
+            <h1 className="feed-title">Fotos</h1>
+            <div className="feed-empty">
+              <span className="material-symbols-outlined">photo_camera</span>
+              <p>A&uacute;n no hay fotos. Abre la ficha de un restaurante y sube tus primeras fotos.</p>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="feed-page">
+          <h1 className="feed-title">Fotos</h1>
+          <p className="feed-subtitle">{totalPhotos} foto{totalPhotos !== 1 ? 's' : ''} en {groups.length} lugar{groups.length !== 1 ? 'es' : ''}</p>
+
+          {groups.map((group, gi) => (
+            <div key={group.restaurant.id} className="feed-group">
+              <div className="feed-group-header">
+                <div className="feed-group-info">
+                  <h3>{group.restaurant.name}</h3>
+                  <span>{group.restaurant.zone} &middot; {group.photos.length} foto{group.photos.length !== 1 ? 's' : ''}</span>
+                </div>
+                <button className="feed-group-action" onClick={() => onSelectRestaurant(group.restaurant)}>Ver ficha</button>
+              </div>
+              <div className="photo-grid">
+                {group.photos.map((photo, pi) => (
+                  <div key={photo.id} className="photo-thumb" onClick={() => openLightbox(gi, pi)}>
+                    <img src={photo.url} alt={photo.caption || 'Foto'} loading="lazy" />
+                    <div className="feed-photo-overlay">
+                      {photo.uploadedBy} &middot; {new Date(photo.uploadedAt).toLocaleDateString('es-CO')}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {lightboxData && currentPhoto && (
+            <div className="lightbox-overlay" onClick={() => setLightboxData(null)}>
+              <button className="lightbox-close" onClick={() => setLightboxData(null)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+              {totalPhotos > 1 && (
+                <>
+                  <button className="lightbox-nav prev" onClick={(e) => { e.stopPropagation(); navLightbox(-1); }}>
+                    <span className="material-symbols-outlined">chevron_left</span>
+                  </button>
+                  <button className="lightbox-nav next" onClick={(e) => { e.stopPropagation(); navLightbox(1); }}>
+                    <span className="material-symbols-outlined">chevron_right</span>
+                  </button>
+                </>
+              )}
+              <img className="lightbox-img" src={currentPhoto.url} alt="" onClick={(e) => e.stopPropagation()} />
+              <div className="lightbox-caption">
+                {currentGroup.restaurant.name} &middot; {currentPhoto.uploadedBy} &middot; {new Date(currentPhoto.uploadedAt).toLocaleDateString('es-CO')}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
     /* ---- Bottom Navigation ---- */
     function BottomNav({ page, onNavigate }) {
       const items = [
         { key: 'home', icon: 'home', label: 'Inicio' },
         { key: 'list', icon: 'restaurant', label: 'Restaurantes' },
+        { key: 'photos', icon: 'photo_library', label: 'Fotos' },
         { key: 'map', icon: 'map', label: 'Mapa' },
       ];
       return (
@@ -1627,7 +2015,9 @@
 
     /* ---- Main App ---- */
     function App() {
-      const [data, setData] = useState({ restaurants: [], personal: {} });
+      const [user, setUser] = useState(null);
+      const [authLoading, setAuthLoading] = useState(true);
+      const [data, setData] = useState({ restaurants: [], personal: {}, photos: {} });
       const [loading, setLoading] = useState(true);
       const [page, setPage] = useState('home');
       const [view, setView] = useState('grid');
@@ -1642,6 +2032,24 @@
       const [showAddModal, setShowAddModal] = useState(false);
 
       useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+          if (firebaseUser && ALLOWED_EMAILS.includes(firebaseUser.email)) {
+            setUser(firebaseUser);
+          } else if (firebaseUser) {
+            auth.signOut();
+            setUser(null);
+            alert('Acceso restringido. Solo usuarios autorizados pueden usar esta app.');
+          } else {
+            setUser(null);
+          }
+          setAuthLoading(false);
+        });
+        auth.getRedirectResult().catch(() => {});
+        return () => unsubscribe();
+      }, []);
+
+      useEffect(() => {
+        if (!user) return;
         dbRef.on('value', (snapshot) => {
           const val = snapshot.val();
           if (!val || !val.restaurants) {
@@ -1650,11 +2058,54 @@
           }
           const restaurants = Object.values(val.restaurants);
           const personal = val.personal || {};
-          setData({ restaurants, personal });
+          const photos = val.photos || {};
+          setData({ restaurants, personal, photos });
           setLoading(false);
         });
         return () => dbRef.off();
-      }, []);
+      }, [user]);
+
+      const handleSignIn = () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider).catch((err) => {
+          if (err.code === 'auth/popup-blocked') auth.signInWithRedirect(provider);
+        });
+      };
+
+      const handleSignOut = () => { auth.signOut(); };
+
+      const handlePhotoUpload = async (restaurantId, file) => {
+        if (!user) return;
+        try {
+          const compressed = await compressImage(file);
+          const timestamp = Date.now();
+          const fileName = timestamp + '_' + user.uid.slice(0,6) + '.jpg';
+          const storageRef = storage.ref('photos/' + restaurantId + '/' + fileName);
+          const snapshot = await storageRef.put(compressed, { contentType: 'image/jpeg' });
+          const url = await snapshot.ref.getDownloadURL();
+          const photoRef = dbRef.child('photos/' + restaurantId).push();
+          await photoRef.set({
+            url: url,
+            storagePath: 'photos/' + restaurantId + '/' + fileName,
+            uploadedBy: user.displayName || user.email,
+            uploadedByUid: user.uid,
+            uploadedAt: timestamp,
+            caption: ''
+          });
+        } catch (err) {
+          alert('Error al subir foto: ' + err.message);
+        }
+      };
+
+      const handlePhotoDelete = async (restaurantId, photoId, storagePath) => {
+        if (!user) return;
+        try {
+          await storage.ref(storagePath).delete();
+          await dbRef.child('photos/' + restaurantId + '/' + photoId).remove();
+        } catch (err) {
+          alert('Error al eliminar foto: ' + err.message);
+        }
+      };
 
       useEffect(() => {
         window.__openDetail__ = (id) => {
@@ -1743,6 +2194,24 @@
         setShowAddModal(false);
       };
 
+      if (authLoading) return (
+        <div className="app" style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'60vh'}}>
+          <h1 style={{fontFamily:'var(--font-headline)', fontSize:32, color:'var(--primary)', fontWeight:600}}>Esquina Foodie</h1>
+          <p style={{color:'var(--on-surface-variant)', fontSize:14, marginTop:8}}>Cargando...</p>
+        </div>
+      );
+
+      if (!user) return (
+        <div className="login-screen">
+          <h1 style={{fontFamily:'var(--font-headline)', fontSize:42, color:'var(--primary)', fontWeight:600}}>Esquina Foodie</h1>
+          <p style={{color:'var(--on-surface-variant)', fontSize:16}}>Tu gu&iacute;a personal de restaurantes</p>
+          <button onClick={handleSignIn} className="btn-primary" style={{display:'flex', alignItems:'center', gap:10, padding:'14px 32px', fontSize:16}}>
+            <span className="material-symbols-outlined">login</span>
+            Iniciar sesi&oacute;n con Google
+          </button>
+        </div>
+      );
+
       if (loading) return (
         <div className="app" style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'60vh'}}>
           <h1 style={{fontFamily:'var(--font-headline)', fontSize:32, color:'var(--primary)', fontWeight:600}}>Esquina Foodie</h1>
@@ -1752,6 +2221,10 @@
 
       return (
         <div>
+          <div className="user-pill" onClick={handleSignOut} title="Cerrar sesi&oacute;n">
+            <img src={user.photoURL} alt="" referrerPolicy="no-referrer" />
+            <span>{user.displayName ? user.displayName.split(' ')[0] : user.email}</span>
+          </div>
           {page === 'home' && (
             <HomePage
               stats={stats}
@@ -1792,6 +2265,15 @@
             />
           )}
 
+          {page === 'photos' && (
+            <FeedPage
+              restaurants={data.restaurants}
+              photos={data.photos}
+              personalData={data.personal}
+              onSelectRestaurant={setSelectedRestaurant}
+            />
+          )}
+
           {page === 'map' && (
             <MapPage
               restaurants={data.restaurants}
@@ -1804,9 +2286,12 @@
             <DetailPanel
               restaurant={selectedRestaurant}
               personal={data.personal[selectedRestaurant.id]}
+              photos={data.photos[selectedRestaurant.id]}
               onClose={() => setSelectedRestaurant(null)}
               onSave={handleSavePersonal}
               onDelete={handleDelete}
+              onPhotoUpload={handlePhotoUpload}
+              onPhotoDelete={handlePhotoDelete}
             />
           )}
 
