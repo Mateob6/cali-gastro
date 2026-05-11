@@ -15,6 +15,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+  <script src="https://unpkg.com/heic2any@0.0.4/dist/heic2any.js"></script>
   <script>
     firebase.initializeApp({
       apiKey: "AIzaSyD-dTbFCte56n4kNpq_0R6Q4-Kcbc4UIQE",
@@ -1078,7 +1079,13 @@
     async function compressImage(file, maxWidth, quality) {
       maxWidth = maxWidth || 800;
       quality = quality || 0.65;
-      var bitmap = await createImageBitmap(file);
+      var input = file;
+      var isHeic = file.type === 'image/heic' || file.type === 'image/heif'
+        || /\.heic$/i.test(file.name) || /\.heif$/i.test(file.name);
+      if (isHeic && typeof heic2any !== 'undefined') {
+        input = await heic2any({ blob: file, toType: 'image/jpeg', quality: quality });
+      }
+      var bitmap = await createImageBitmap(input);
       var w = bitmap.width, h = bitmap.height;
       if (w > maxWidth) { h = Math.round((h * maxWidth) / w); w = maxWidth; }
       var canvas = document.createElement('canvas');
