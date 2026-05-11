@@ -1164,7 +1164,7 @@
         const files = Array.from(e.target.files);
         if (files.length === 0) return;
         setUploading(true);
-        for (const file of files) { await onUpload(restaurantId, file); }
+        await Promise.all(files.map(file => onUpload(restaurantId, file)));
         setUploading(false);
         if (fileInputRef.current) fileInputRef.current.value = '';
       };
@@ -2077,7 +2077,7 @@
       const handlePhotoUpload = async (restaurantId, file) => {
         if (!user) return;
         try {
-          const compressed = await compressImage(file);
+          const compressed = await compressImage(file, 800, 0.65);
           const timestamp = Date.now();
           const fileName = timestamp + '_' + user.uid.slice(0,6) + '.jpg';
           const storageRef = storage.ref('photos/' + restaurantId + '/' + fileName);
