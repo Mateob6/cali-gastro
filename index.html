@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <title>Esquina Foodie</title>
+  <title>La Esquinita</title>
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@500;600&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -2192,7 +2192,7 @@
       return (
         <div style={{maxWidth:1200, margin:'0 auto', padding:'48px 32px 32px'}}>
           <div style={{textAlign:'center', marginBottom:48}}>
-            <h1 style={{fontFamily:'var(--font-headline)', fontSize:42, fontWeight:600, color:'var(--primary)', letterSpacing:'-0.02em'}}>Esquina Foodie</h1>
+            <h1 style={{fontFamily:'var(--font-headline)', fontSize:42, fontWeight:600, color:'var(--primary)', letterSpacing:'-0.02em'}}>La Esquinita</h1>
             <p style={{fontFamily:'var(--font-body)', fontSize:16, color:'var(--on-surface-variant)', marginTop:8}}>Tu gu&iacute;a personal de restaurantes en Cali</p>
           </div>
 
@@ -2337,7 +2337,7 @@
       return (
         <div className="app">
           <div className="header">
-            <h1>Esquina Foodie</h1>
+            <h1>La Esquinita</h1>
             <div className="subtitle">{stats.total} RESTAURANTES</div>
             <div className="stats">{stats.quiero} por visitar &middot; {stats.fui} visitados</div>
           </div>
@@ -2725,14 +2725,14 @@
 
       if (authLoading) return (
         <div className="app" style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'60vh'}}>
-          <h1 style={{fontFamily:'var(--font-headline)', fontSize:32, color:'var(--primary)', fontWeight:600}}>Esquina Foodie</h1>
+          <h1 style={{fontFamily:'var(--font-headline)', fontSize:32, color:'var(--primary)', fontWeight:600}}>La Esquinita</h1>
           <p style={{color:'var(--on-surface-variant)', fontSize:14, marginTop:8}}>Cargando...</p>
         </div>
       );
 
       if (!user) return (
         <div className="login-screen">
-          <h1 style={{fontFamily:'var(--font-headline)', fontSize:42, color:'var(--primary)', fontWeight:600}}>Esquina Foodie</h1>
+          <h1 style={{fontFamily:'var(--font-headline)', fontSize:42, color:'var(--primary)', fontWeight:600}}>La Esquinita</h1>
           <p style={{color:'var(--on-surface-variant)', fontSize:16}}>Tu gu&iacute;a personal de restaurantes</p>
           <button onClick={handleSignIn} className="btn-primary" style={{display:'flex', alignItems:'center', gap:10, padding:'14px 32px', fontSize:16}}>
             <span className="material-symbols-outlined">login</span>
@@ -2743,7 +2743,7 @@
 
       if (loading) return (
         <div className="app" style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'60vh'}}>
-          <h1 style={{fontFamily:'var(--font-headline)', fontSize:32, color:'var(--primary)', fontWeight:600}}>Esquina Foodie</h1>
+          <h1 style={{fontFamily:'var(--font-headline)', fontSize:32, color:'var(--primary)', fontWeight:600}}>La Esquinita</h1>
           <p style={{color:'var(--on-surface-variant)', fontSize:14, marginTop:8}}>Cargando restaurantes...</p>
         </div>
       );
