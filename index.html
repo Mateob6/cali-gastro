@@ -1008,6 +1008,113 @@
     }
     .feed-empty p { font-size: 14px; max-width: 280px; }
 
+    /* ---- Calendar ---- */
+    .calendar-container {
+      background: #ffffff;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .calendar-header h3 {
+      font-family: var(--font-headline);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--on-surface);
+      text-transform: capitalize;
+      margin: 0;
+    }
+    .calendar-nav-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--outline-variant);
+      background: transparent;
+      color: var(--on-surface-variant);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .calendar-nav-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(155,63,37,0.04);
+    }
+    .calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      margin-bottom: 4px;
+    }
+    .calendar-weekday {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--outline);
+      padding: 6px 0;
+    }
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--on-surface);
+      cursor: default;
+      position: relative;
+      transition: all 0.15s;
+    }
+    .calendar-day.has-photos {
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .calendar-day.has-photos:hover {
+      background: rgba(155,63,37,0.06);
+    }
+    .calendar-day.selected {
+      background: var(--primary);
+      color: var(--on-primary);
+    }
+    .calendar-day.selected .calendar-dot {
+      background: var(--on-primary);
+    }
+    .calendar-day.today {
+      box-shadow: inset 0 0 0 1.5px var(--outline-variant);
+    }
+    .calendar-day.today.selected {
+      box-shadow: none;
+    }
+    .calendar-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--primary);
+      position: absolute;
+      bottom: 4px;
+    }
+    @media (max-width: 768px) {
+      .calendar-container { padding: 14px; }
+      .calendar-day { font-size: 13px; }
+      .calendar-dot { width: 4px; height: 4px; bottom: 2px; }
+    }
+
     /* ---- Bottom Nav ---- */
     .bottom-nav {
       position: fixed;
@@ -1569,9 +1676,25 @@
     }
 
     /* ---- Feed Page ---- */
+    function getCalendarDays(year, month) {
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startWeekday = (firstDay.getDay() + 6) % 7;
+      const daysInMonth = lastDay.getDate();
+      const cells = [];
+      for (let i = 0; i < startWeekday; i++) cells.push(null);
+      for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+      return cells;
+    }
+
     function FeedPage({ restaurants, photos, personalData, onSelectRestaurant }) {
       const [feedView, setFeedView] = useState('restaurant');
       const [lightboxData, setLightboxData] = useState(null);
+      const [calMonth, setCalMonth] = useState(() => {
+        const now = new Date();
+        return { year: now.getFullYear(), month: now.getMonth() };
+      });
+      const [selectedDate, setSelectedDate] = useState(null);
 
       const groups = useMemo(() => {
         if (!photos || Object.keys(photos).length === 0) return [];
@@ -1590,53 +1713,97 @@
         return result;
       }, [photos, restaurants]);
 
-      const calendarGroups = useMemo(() => {
-        if (!photos || Object.keys(photos).length === 0) return [];
-        const byDate = {};
+      const photosByDate = useMemo(() => {
+        if (!photos || Object.keys(photos).length === 0) return {};
+        const map = {};
         Object.entries(photos).forEach(([restaurantId, photoObj]) => {
           const restaurant = restaurants.find(r => r.id === restaurantId);
           if (!restaurant || !photoObj) return;
           Object.entries(photoObj).forEach(([id, d]) => {
             const ts = d.uploadedAt || 0;
             const dateKey = new Date(ts).toISOString().slice(0, 10);
-            if (!byDate[dateKey]) byDate[dateKey] = [];
-            byDate[dateKey].push({ id, restaurantId, restaurant, ...d });
+            if (!map[dateKey]) map[dateKey] = [];
+            map[dateKey].push({ id, restaurantId, restaurant, ...d });
           });
         });
-        return Object.entries(byDate)
-          .map(([dateKey, photoList]) => {
-            photoList.sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
-            const dateObj = new Date(dateKey + 'T12:00:00');
-            const dateLabel = dateObj.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-            const restaurantCount = new Set(photoList.map(p => p.restaurantId)).size;
-            return { dateKey, dateLabel, photos: photoList, restaurantCount };
-          })
-          .sort((a, b) => b.dateKey.localeCompare(a.dateKey));
+        Object.values(map).forEach(list => list.sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0)));
+        return map;
       }, [photos, restaurants]);
 
       const totalPhotos = groups.reduce((sum, g) => sum + g.photos.length, 0);
+      const totalDaysWithPhotos = Object.keys(photosByDate).length;
 
-      const activeGroups = feedView === 'restaurant' ? groups : calendarGroups;
+      const selectedPhotos = selectedDate && photosByDate[selectedDate] ? photosByDate[selectedDate] : [];
+      const selectedRestaurantCount = selectedPhotos.length > 0 ? new Set(selectedPhotos.map(p => p.restaurantId)).size : 0;
+      const selectedDateLabel = selectedDate
+        ? new Date(selectedDate + 'T12:00:00').toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+        : '';
 
       const openLightbox = (groupIdx, photoIdx) => {
         setLightboxData({ groupIdx, photoIdx });
       };
 
-      const currentGroup = lightboxData ? activeGroups[lightboxData.groupIdx] : null;
-      const currentPhoto = currentGroup ? currentGroup.photos[lightboxData.photoIdx] : null;
-      const navLightbox = (dir) => {
-        if (!currentGroup) return;
-        const allPhotos = activeGroups.flatMap((g, gi) => g.photos.map((p, pi) => ({ gi, pi })));
+      const openCalendarLightbox = (photoIdx) => {
+        setLightboxData({ photoIdx });
+      };
+
+      const navRestaurantLightbox = (dir) => {
+        const allPhotos = groups.flatMap((g, gi) => g.photos.map((p, pi) => ({ gi, pi })));
         const currentFlat = allPhotos.findIndex(x => x.gi === lightboxData.groupIdx && x.pi === lightboxData.photoIdx);
         const next = (currentFlat + dir + allPhotos.length) % allPhotos.length;
         setLightboxData({ groupIdx: allPhotos[next].gi, photoIdx: allPhotos[next].pi });
       };
 
-      const getLightboxCaption = () => {
-        if (!currentPhoto) return '';
-        const restaurantName = currentPhoto.restaurant ? currentPhoto.restaurant.name : (currentGroup.restaurant ? currentGroup.restaurant.name : '');
-        return restaurantName + ' · ' + (currentPhoto.uploadedBy || '') + ' · ' + new Date(currentPhoto.uploadedAt).toLocaleDateString('es-CO');
+      const navCalendarLightbox = (dir) => {
+        const next = (lightboxData.photoIdx + dir + selectedPhotos.length) % selectedPhotos.length;
+        setLightboxData({ photoIdx: next });
       };
+
+      const getCurrentLightboxPhoto = () => {
+        if (!lightboxData) return null;
+        if (feedView === 'restaurant') {
+          const g = groups[lightboxData.groupIdx];
+          return g ? g.photos[lightboxData.photoIdx] : null;
+        } else {
+          return selectedPhotos[lightboxData.photoIdx] || null;
+        }
+      };
+
+      const getLightboxRestaurantName = () => {
+        const photo = getCurrentLightboxPhoto();
+        if (!photo) return '';
+        if (photo.restaurant) return photo.restaurant.name;
+        if (feedView === 'restaurant' && groups[lightboxData.groupIdx]) return groups[lightboxData.groupIdx].restaurant.name;
+        return '';
+      };
+
+      const currentPhoto = getCurrentLightboxPhoto();
+
+      const navMonth = (dir) => {
+        setCalMonth(prev => {
+          let m = prev.month + dir;
+          let y = prev.year;
+          if (m < 0) { m = 11; y--; }
+          if (m > 11) { m = 0; y++; }
+          return { year: y, month: m };
+        });
+        setSelectedDate(null);
+        setLightboxData(null);
+      };
+
+      const handleDayClick = (day) => {
+        if (!day) return;
+        const dateKey = `${calMonth.year}-${String(calMonth.month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        if (!photosByDate[dateKey]) return;
+        setSelectedDate(selectedDate === dateKey ? null : dateKey);
+        setLightboxData(null);
+      };
+
+      const calendarDays = useMemo(() => getCalendarDays(calMonth.year, calMonth.month), [calMonth]);
+      const monthLabel = new Date(calMonth.year, calMonth.month, 1).toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
+
+      const today = new Date();
+      const todayKey = today.toISOString().slice(0, 10);
 
       if (totalPhotos === 0) {
         return (
@@ -1656,13 +1823,13 @@
           <p className="feed-subtitle">
             {totalPhotos} foto{totalPhotos !== 1 ? 's' : ''} en {feedView === 'restaurant'
               ? groups.length + ' lugar' + (groups.length !== 1 ? 'es' : '')
-              : calendarGroups.length + ' día' + (calendarGroups.length !== 1 ? 's' : '')
+              : totalDaysWithPhotos + ' día' + (totalDaysWithPhotos !== 1 ? 's' : '')
             }
           </p>
 
           <div style={{marginBottom: 24}}>
             <div className="view-toggle">
-              <button className={`view-btn ${feedView === 'restaurant' ? 'active' : ''}`} onClick={() => { setFeedView('restaurant'); setLightboxData(null); }}>Por restaurante</button>
+              <button className={`view-btn ${feedView === 'restaurant' ? 'active' : ''}`} onClick={() => { setFeedView('restaurant'); setLightboxData(null); setSelectedDate(null); }}>Por restaurante</button>
               <button className={`view-btn ${feedView === 'calendar' ? 'active' : ''}`} onClick={() => { setFeedView('calendar'); setLightboxData(null); }}>Por fecha</button>
             </div>
           </div>
@@ -1689,44 +1856,86 @@
             </div>
           ))}
 
-          {feedView === 'calendar' && calendarGroups.map((group, gi) => (
-            <div key={group.dateKey} className="feed-group">
-              <div className="feed-group-header">
-                <div className="feed-group-info">
-                  <h3 style={{textTransform: 'capitalize'}}>{group.dateLabel}</h3>
-                  <span>{group.photos.length} foto{group.photos.length !== 1 ? 's' : ''} &middot; {group.restaurantCount} restaurante{group.restaurantCount !== 1 ? 's' : ''}</span>
+          {feedView === 'calendar' && (
+            <>
+              <div className="calendar-container">
+                <div className="calendar-header">
+                  <button className="calendar-nav-btn" onClick={() => navMonth(-1)}>
+                    <span className="material-symbols-outlined" style={{fontSize:18}}>chevron_left</span>
+                  </button>
+                  <h3>{monthLabel}</h3>
+                  <button className="calendar-nav-btn" onClick={() => navMonth(1)}>
+                    <span className="material-symbols-outlined" style={{fontSize:18}}>chevron_right</span>
+                  </button>
+                </div>
+                <div className="calendar-weekdays">
+                  {['Lu','Ma','Mi','Ju','Vi','Sá','Do'].map(d => (
+                    <div key={d} className="calendar-weekday">{d}</div>
+                  ))}
+                </div>
+                <div className="calendar-days">
+                  {calendarDays.map((day, i) => {
+                    if (day === null) return <div key={'e'+i} className="calendar-day" />;
+                    const dateKey = `${calMonth.year}-${String(calMonth.month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    const hasPhotos = !!photosByDate[dateKey];
+                    const isSelected = selectedDate === dateKey;
+                    const isToday = dateKey === todayKey;
+                    let cls = 'calendar-day';
+                    if (hasPhotos) cls += ' has-photos';
+                    if (isSelected) cls += ' selected';
+                    if (isToday && !isSelected) cls += ' today';
+                    return (
+                      <div key={dateKey} className={cls} onClick={() => handleDayClick(day)}>
+                        {day}
+                        {hasPhotos && <span className="calendar-dot" />}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-              <div className="photo-grid">
-                {group.photos.map((photo, pi) => (
-                  <div key={photo.id} className="photo-thumb" onClick={() => openLightbox(gi, pi)}>
-                    <img src={photo.url} alt={photo.caption || 'Foto'} loading="lazy" />
-                    <div className="feed-photo-overlay">
-                      {photo.restaurant ? photo.restaurant.name : ''} &middot; {photo.uploadedBy}
+
+              {selectedDate && selectedPhotos.length > 0 && (
+                <div className="feed-group">
+                  <div className="feed-group-header">
+                    <div className="feed-group-info">
+                      <h3 style={{textTransform: 'capitalize'}}>{selectedDateLabel}</h3>
+                      <span>{selectedPhotos.length} foto{selectedPhotos.length !== 1 ? 's' : ''} &middot; {selectedRestaurantCount} restaurante{selectedRestaurantCount !== 1 ? 's' : ''}</span>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          ))}
+                  <div className="photo-grid">
+                    {selectedPhotos.map((photo, pi) => (
+                      <div key={photo.id} className="photo-thumb" onClick={() => openCalendarLightbox(pi)}>
+                        <img src={photo.url} alt={photo.caption || 'Foto'} loading="lazy" />
+                        <div className="feed-photo-overlay">
+                          {photo.restaurant ? photo.restaurant.name : ''} &middot; {photo.uploadedBy}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
 
           {lightboxData && currentPhoto && (
             <div className="lightbox-overlay" onClick={() => setLightboxData(null)}>
               <button className="lightbox-close" onClick={() => setLightboxData(null)}>
                 <span className="material-symbols-outlined">close</span>
               </button>
-              {totalPhotos > 1 && (
+              {((feedView === 'restaurant' && totalPhotos > 1) || (feedView === 'calendar' && selectedPhotos.length > 1)) && (
                 <>
-                  <button className="lightbox-nav prev" onClick={(e) => { e.stopPropagation(); navLightbox(-1); }}>
+                  <button className="lightbox-nav prev" onClick={(e) => { e.stopPropagation(); feedView === 'restaurant' ? navRestaurantLightbox(-1) : navCalendarLightbox(-1); }}>
                     <span className="material-symbols-outlined">chevron_left</span>
                   </button>
-                  <button className="lightbox-nav next" onClick={(e) => { e.stopPropagation(); navLightbox(1); }}>
+                  <button className="lightbox-nav next" onClick={(e) => { e.stopPropagation(); feedView === 'restaurant' ? navRestaurantLightbox(1) : navCalendarLightbox(1); }}>
                     <span className="material-symbols-outlined">chevron_right</span>
                   </button>
                 </>
               )}
               <img className="lightbox-img" src={currentPhoto.url} alt="" onClick={(e) => e.stopPropagation()} />
-              <div className="lightbox-caption">{getLightboxCaption()}</div>
+              <div className="lightbox-caption">
+                {getLightboxRestaurantName()} &middot; {currentPhoto.uploadedBy} &middot; {new Date(currentPhoto.uploadedAt).toLocaleDateString('es-CO')}
+              </div>
             </div>
           )}
         </div>
