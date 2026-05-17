@@ -1,8 +1,8 @@
-# Esquina Foodie — Restaurant Tracker
+# La Esquinita — Restaurant Tracker
 
 ## Overview
 
-Tracker colaborativo de restaurantes en Cali y alrededores (Palmira, Dapa, Pance, Lago Calima). 55 restaurantes activos. Single HTML file con React + Firebase Realtime Database + Leaflet.js para mapa interactivo. Diseño "Earth & Terracotta" generado con Stitch.
+Espacio personal de Isabela y Mateo para trackear restaurantes en Cali y alrededores. 55+ restaurantes activos. Single HTML file con React + Firebase Realtime Database + Leaflet.js para mapa interactivo. Diseño "Earth & Terracotta" con dark mode. PWA instalable.
 
 - **Página:** https://mateob6.github.io/cali-gastro/
 - **Firebase:** https://cali-gastro-default-rtdb.firebaseio.com/
@@ -13,21 +13,22 @@ Tracker colaborativo de restaurantes en Cali y alrededores (Palmira, Dapa, Pance
 
 - React 18 via CDN (babel standalone, JSX in-browser)
 - Firebase Realtime Database (compat SDK via CDN)
-- Firebase Authentication (Google Sign-in, restringido a 2 emails)
+- Firebase Authentication (Google Sign-in, restringido a 3 emails)
 - Firebase Storage (fotos de restaurantes, comprimidas client-side)
 - Leaflet.js 1.9.4 + OpenStreetMap (mapa interactivo, sin API key)
 - Material Symbols Outlined (iconos)
 - GitHub Pages para hosting
-- Un solo archivo: `index.html`
+- PWA (manifest.json + iconos para instalación en home screen)
+- Un solo archivo principal: `index.html`
 
 ## Autenticación
 
-Google Sign-in restringido a dos cuentas:
+Google Sign-in restringido a tres cuentas:
 - `mbcvarios019@gmail.com` (Mateo)
 - `mateo.belalcazar6@gmail.com` (Mateo)
 - `cnscisabelacas@gmail.com` (Isabela)
 
-La app muestra una pantalla de login antes de cargar datos. El avatar del usuario aparece como pill fija en la esquina superior derecha (click → sign out). Emails no autorizados son rechazados automáticamente.
+La app muestra una pantalla de login antes de cargar datos. El avatar del usuario aparece como pill fija en la esquina superior derecha (click → sign out). Botón de dark mode al lado del avatar. Emails no autorizados son rechazados automáticamente.
 
 ## Fotos
 
@@ -43,11 +44,15 @@ Galería de fotos por restaurante, compartida entre ambos usuarios.
   uploadedBy: "Mateo",
   uploadedByUid: "abc123",
   uploadedAt: 1718300000000,
-  caption: ""
+  caption: "El mejor ceviche"  // editable desde lightbox
 }
 ```
 
-Las fotos se comprimen a JPEG (max 800px, quality 0.65) antes de subir usando `createImageBitmap` (no bloquea el hilo principal). Se suben en paralelo cuando se seleccionan múltiples fotos. Se muestran en un grid 3 columnas dentro del DetailPanel, entre "Información pública" y "Mi experiencia". Click en thumbnail abre lightbox fullscreen con navegación.
+Las fotos se comprimen a JPEG (max 800px, quality 0.65) antes de subir usando `createImageBitmap` (no bloquea el hilo principal). Se suben en paralelo cuando se seleccionan múltiples fotos.
+
+### Captions
+
+Las captions se editan directamente en el lightbox (input debajo de la imagen). Se auto-guardan a Firebase on blur. Se muestran en el estilo polaroid del feed y en el overlay de thumbnails.
 
 ### HEIC/HEIF (fotos de iPhone)
 
@@ -60,37 +65,40 @@ Las fotos se comprimen a JPEG (max 800px, quality 0.65) antes de subir usando `c
 
 | Página | Componente | Descripción |
 |--------|-----------|-------------|
-| **Inicio** | `HomePage` | Landing con stats, restaurantes destacados, accesos rápidos a lista y mapa |
-| **Restaurantes** | `ListPage` | Grid/tabla con filtros (zona, categoría, precio, status), búsqueda, ordenamiento, detalle, agregar |
-| **Fotos** | `FeedPage` | Feed estilo Instagram: fotos agrupadas por restaurante, orden cronológico, lightbox, link a ficha |
+| **Inicio** | `HomePage` | Saludo dinámico (hora del día), stats (total, por visitar, visitados, gasto total, visitas, promedio), destacados, nav cards incluyendo randomizer |
+| **Restaurantes** | `ListPage` | Grid/tabla con filtros (zona, categoría, precio, status, abierto hoy), búsqueda, ordenamiento, foto de portada en cards |
+| **Fotos** | `FeedPage` | Dos vistas: "Por restaurante" (polaroid-style) y "Por fecha" (calendario mensual interactivo) |
 | **Mapa** | `MapPage` | Mapa interactivo de Cali con marcadores color-coded por status, popups, filtro de status |
 
-Navegación: `BottomNav` persistente (Inicio · Restaurantes · Fotos · Mapa). Routing por estado (`page`), sin React Router.
+Navegación: `BottomNav` persistente con pill indicator (Inicio · Restaurantes · Fotos · Mapa). Routing por estado (`page`), sin React Router.
 
 ## Arquitectura de componentes
 
 ```
-App (estado global, Firebase listener, auth, handlers)
+App (estado global, Firebase listener, auth, dark mode, handlers)
 ├── Login screen (si no hay user autenticado)
-├── User pill (avatar + nombre, fijo top-right, click → sign out)
-├── BottomNav (fijo, 3 items)
-├── HomePage (stats, destacados, nav cards)
-│   ├── StatCard
+├── Dark mode toggle + User pill (fijo top-right)
+├── BottomNav (fijo, 4 items, pill indicator activo)
+├── HomePage (saludo dinámico, stats 2 filas, destacados, nav cards)
+│   ├── StatCard (6: restaurantes, por visitar, visitados, gasto, visitas, promedio)
 │   ├── MiniCard
-│   └── NavCard
+│   └── NavCard (Explorar, ¿A dónde vamos?, Mapa)
 ├── ListPage (toda la funcionalidad de lista)
-│   ├── RestaurantCard (tarjeta con tri-state buttons)
+│   ├── RestaurantCard (cover photo, tri-state, rating, abierto/cerrado, última visita, animación ya-fui)
 │   ├── RestaurantTable (vista tabla)
 │   └── FAB (+)
-├── FeedPage (feed de fotos agrupado por restaurante)
+├── FeedPage
+│   ├── Vista "Por restaurante" (polaroid-style, rotación aleatoria, captions)
+│   └── Vista "Por fecha" (calendario mensual, navegación meses, grid de fotos por día)
 ├── MapPage (Leaflet.js)
 │   ├── Marcadores SVG color-coded
 │   └── Popups con "Ver detalle"
-├── DetailPanel (modal compartido entre list y map)
-│   ├── Info pública (dirección, rating, precio, platos, vibe, horario, reserva, instagram, tags)
-│   ├── PhotoGallery (grid de fotos + upload + lightbox)
-│   └── Mi experiencia (rating personal, fecha, pedido, gasto, notas, volvería)
+├── DetailPanel (modal compartido)
+│   ├── Info pública (dirección, Google Maps link, rating, precio, platos, vibe, horario, reserva, Instagram link, tags)
+│   ├── PhotoGallery (grid + upload + lightbox con captions editables)
+│   └── Historial de visitas (múltiples visitas, agregar/eliminar)
 ├── AddModal (formulario completo)
+├── RandomizerModal (date night picker con animación)
 ├── StarRating (estrellas clickeables)
 └── StatusBadge (chip de estado)
 ```
@@ -127,15 +135,64 @@ App (estado global, Firebase listener, auth, handlers)
 
 ```javascript
 {
-  status: "quiero-ir",         // quiero-ir | ya-fui | no-interesa | sin-decidir
+  status: "ya-fui",            // quiero-ir | ya-fui | no-interesa | sin-decidir
   myRating: 4,                 // 0-5
-  dateVisited: "2025-12-14",   // fecha o ""
+  // Campos legacy (se mantienen pero UI usa visits)
+  dateVisited: "2025-12-14",
   whatIOrdered: "Ceviche + Lomo",
-  totalSpent: "185000",        // COP o ""
-  notes: "Increíble ambiente nocturno...",
-  wouldReturn: true            // true | false | null
+  totalSpent: "185000",
+  notes: "...",
+  wouldReturn: true,
+  // Historial de visitas (nuevo)
+  visits: {
+    "-abc123": { date: "2026-05-10", ordered: "Ceviche + Lomo", spent: "185000", notes: "Primer date aquí", wouldReturn: true },
+    "-def456": { date: "2026-03-15", ordered: "Solo cócteles", spent: "90000", notes: "Cumpleaños", wouldReturn: true }
+  }
 }
 ```
+
+**Auto-migración:** Si un restaurante tiene campos legacy sin `visits`, el DetailPanel los migra automáticamente a un primer entry en `visits` al abrir.
+
+## Features principales
+
+### Historial de visitas
+- Múltiples visitas por restaurante (fecha, pedido, gasto, notas, ¿volvería?)
+- Se agregan desde DetailPanel con botón "Agregar visita"
+- Se pueden eliminar individualmente
+- Stats en HomePage suman gastos y cuentan visitas
+
+### Date Night Randomizer
+- Modal "¿A dónde vamos?" accesible desde HomePage
+- Filtra: `quiero-ir` + abiertos hoy (usa `isOpenToday` helper)
+- Filtro inline por precio
+- Animación shuffle → restaurante ganador con botones "Otro", "Ver ficha", "Ir" (Google Maps)
+
+### "Abierto hoy"
+- Helper `isOpenToday(closedDay)` → `true` / `false` / `'partial'`
+- Badge en cada RestaurantCard (verde "Abierto", naranja "Solo almuerzo", gris "Cerrado hoy")
+- Filtro "Abierto hoy" en ListPage status chips
+
+### Dark Mode
+- Toggle en esquina superior derecha (ícono sol/luna)
+- Variables CSS completas para tema oscuro
+- Persiste en `localStorage`
+- Aplica `data-theme="dark"` en `<html>`
+
+### Calendario de fotos
+- Vista "Por fecha" en FeedPage: grilla mensual (Lu-Do)
+- Navegación entre meses con flechas
+- Puntos indicadores en días con fotos
+- Click en día → muestra fotos de ese día debajo
+- Lightbox navega solo dentro del día seleccionado
+
+### Polish visual
+- Foto de portada en RestaurantCard (primera foto subida del restaurante)
+- Bottom nav con pill indicator animado
+- Animación check + confetti al marcar "Ya fui"
+- Fotos estilo polaroid en feed (rotación aleatoria, caption visible)
+- Saludo dinámico en HomePage según hora del día
+- Skeleton shimmer en loading state
+- "Última visita: hace X días" en cards de restaurantes visitados
 
 ## Agregar restaurantes
 
@@ -232,7 +289,7 @@ cali-gastro/
 │   ├── {id}/  → datos públicos + lat/lng + tags
 │   └── ...
 ├── personal/
-│   ├── {id}/  → status, myRating, notes, dateVisited, whatIOrdered, totalSpent, wouldReturn
+│   ├── {id}/  → status, myRating, visits: { visitId: { date, ordered, spent, notes, wouldReturn } }
 │   └── ...
 └── photos/
     ├── {restaurantId}/
@@ -243,25 +300,36 @@ cali-gastro/
 
 ## Design System: Earth & Terracotta
 
-Generado en Stitch (`assets/17553987259345874469`).
+Generado en Stitch (`assets/17553987259345874469`). Incluye dark mode.
 
-| Token | Valor |
-|-------|-------|
-| Surface | `#fff8f6` |
-| Primary (Terracotta) | `#9b3f25` |
-| Secondary (Olive) | `#5c614d` |
-| Tertiary (Teal) | `#006765` |
-| On Surface | `#231917` |
-| Outline Variant | `#ddc0b9` |
-| Font Headline | Newsreader (serif) |
-| Font Body | Be Vietnam Pro (sans) |
-| Radius | 12px (0.75rem) |
-| Icons | Material Symbols Outlined |
+| Token | Light | Dark |
+|-------|-------|------|
+| Surface | `#fff8f6` | `#1a1210` |
+| Primary | `#9b3f25` | `#ffb4a0` |
+| Secondary | `#5c614d` | `#c8cdb1` |
+| Tertiary | `#006765` | `#4ddad8` |
+| On Surface | `#231917` | `#f0ddd8` |
+| Outline Variant | `#ddc0b9` | `#534340` |
+| Font Headline | Newsreader (serif) | — |
+| Font Body | Be Vietnam Pro (sans) | — |
+| Radius | 12px (0.75rem) | — |
+| Icons | Material Symbols Outlined | — |
 
 ### Marcadores del mapa
 - Teal (`#006765`): Quiero ir
 - Terracotta (`#9b3f25`): Ya fui
 - Gris (`#89726c`): Sin decidir / No me interesa
+
+## Archivos del proyecto
+
+```
+restaurantes/
+├── index.html       ← app completa (HTML + CSS + JSX)
+├── manifest.json    ← PWA manifest
+├── icon-192.png     ← PWA icon 192x192
+├── icon-512.png     ← PWA icon 512x512
+└── CLAUDE.md        ← este archivo
+```
 
 ## Desarrollo
 
