@@ -1,0 +1,13 @@
+{
+  "name": "Esquina Foodie",
+  "short_name": "Foodie",
+  "description": "Tu guía personal de restaurantes en Cali",
+  "start_url": "/cali-gastro/",
+  "display": "standalone",
+  "background_color": "#fff8f6",
+  "theme_color": "#9b3f25",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

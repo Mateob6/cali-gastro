@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#9b3f25">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <title>Esquina Foodie</title>
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@500;600&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
@@ -53,6 +58,28 @@
       --shadow-soft: 0px 4px 20px rgba(26,26,26,0.04);
       --font-headline: 'Newsreader', serif;
       --font-body: 'Be Vietnam Pro', sans-serif;
+      --card-bg: #ffffff;
+    }
+
+    [data-theme="dark"] {
+      --surface: #1a1210;
+      --surface-container: #2a1f1c;
+      --surface-container-low: #221a17;
+      --surface-dim: #2f2320;
+      --on-surface: #f0ddd8;
+      --on-surface-variant: #d8c2bc;
+      --primary: #ffb4a0;
+      --primary-container: #7c2d15;
+      --on-primary: #3c0d00;
+      --secondary: #c8cdb1;
+      --secondary-container: #444a38;
+      --on-secondary-container: #c8cdb1;
+      --tertiary: #4ddad8;
+      --outline: #a08c86;
+      --outline-variant: #534340;
+      --error: #ffb4ab;
+      --shadow-soft: 0px 4px 20px rgba(0,0,0,0.2);
+      --card-bg: #2a1f1c;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -142,7 +169,7 @@
     .search-input {
       width: 100%;
       padding: 14px 18px 14px 50px;
-      background: #ffffff;
+      background: var(--card-bg);
       border: 1px solid var(--outline-variant);
       border-radius: var(--radius-full);
       color: var(--on-surface);
@@ -201,7 +228,7 @@
 
     .filter-select {
       padding: 8px 32px 8px 12px;
-      background: #ffffff;
+      background: var(--card-bg);
       border: 1px solid var(--outline-variant);
       border-radius: var(--radius);
       color: var(--on-surface-variant);
@@ -287,7 +314,7 @@
 
     .sort-select {
       padding: 7px 30px 7px 12px;
-      background: #ffffff;
+      background: var(--card-bg);
       border: 1px solid var(--outline-variant);
       border-radius: var(--radius);
       color: var(--on-surface-variant);
@@ -310,7 +337,7 @@
 
     /* ---- Card ---- */
     .card {
-      background: #ffffff;
+      background: var(--card-bg);
       border: 1px solid var(--outline-variant);
       border-radius: var(--radius);
       padding: 24px;
@@ -401,7 +428,7 @@
       font-family: var(--font-body);
       cursor: pointer;
       border: none;
-      background: #ffffff;
+      background: var(--card-bg);
       color: var(--on-surface-variant);
       transition: all 0.15s;
       text-align: center;
@@ -527,7 +554,7 @@
       animation: fadeIn 0.2s;
     }
     .detail-panel {
-      background: #ffffff;
+      background: var(--card-bg);
       border: 1px solid var(--outline-variant);
       border-radius: var(--radius);
       z-index: 101;
@@ -540,6 +567,7 @@
       box-shadow: 0px 16px 48px rgba(26,26,26,0.12);
     }
     @keyframes scaleIn { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes pulse { from { transform: scale(1); opacity: 0.5; } to { transform: scale(1.1); opacity: 1; } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     .detail-panel h2 {
@@ -728,7 +756,7 @@
     .user-pill {
       position: fixed; top: 12px; right: 16px; z-index: 1001;
       display: flex; align-items: center; gap: 8px;
-      background: #ffffff; border: 1px solid var(--outline-variant);
+      background: var(--card-bg); border: 1px solid var(--outline-variant);
       border-radius: var(--radius-full); padding: 4px 12px 4px 4px;
       box-shadow: var(--shadow-soft); cursor: pointer;
     }
@@ -756,7 +784,7 @@
       width: 20px;
       height: 20px;
       border-radius: 50%;
-      background: #ffffff;
+      background: var(--card-bg);
       position: absolute;
       top: 2px;
       left: 2px;
@@ -841,7 +869,7 @@
       animation: fadeIn 0.2s;
     }
     .modal {
-      background: #ffffff;
+      background: var(--card-bg);
       border: 1px solid var(--outline-variant);
       border-radius: var(--radius);
       padding: 36px 32px;
@@ -1010,7 +1038,7 @@
 
     /* ---- Calendar ---- */
     .calendar-container {
-      background: #ffffff;
+      background: var(--card-bg);
       border: 1px solid var(--outline-variant);
       border-radius: var(--radius);
       padding: 20px;
@@ -1121,7 +1149,7 @@
       bottom: 0;
       left: 0;
       right: 0;
-      background: #ffffff;
+      background: var(--card-bg);
       border-top: 1px solid var(--outline-variant);
       display: flex;
       justify-content: space-around;
@@ -1182,6 +1210,22 @@
     const { useState, useEffect, useMemo, useCallback, useRef } = React;
 
     const ALLOWED_EMAILS = ['mbcvarios019@gmail.com', 'cnscisabelacas@gmail.com', 'mateo.belalcazar6@gmail.com'];
+
+    function isOpenToday(closedDay) {
+      if (!closedDay || closedDay === 'Abierto siempre') return true;
+      const dayNames = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+      const today = dayNames[new Date().getDay()];
+      const closed = closedDay.toLowerCase();
+      if (closed.includes('dom') && closed.includes('solo almuerzo') && today === 'domingo') return 'partial';
+      if (closed.includes('dom') && closed.includes('horario reducido') && today === 'domingo') return 'partial';
+      const closedDays = closed.replace(/\(.*?\)/g, '').replace(/y/g, ',').split(/[,·]/);
+      for (let d of closedDays) {
+        d = d.trim();
+        if (!d) continue;
+        if (today.startsWith(d.slice(0, 3))) return false;
+      }
+      return true;
+    }
 
     async function compressImage(file, maxWidth, quality) {
       maxWidth = maxWidth || 800;
@@ -1325,8 +1369,19 @@
                 </>
               )}
               <img className="lightbox-img" src={photoList[lightboxIndex].url} alt="" onClick={(e) => e.stopPropagation()} />
-              <div className="lightbox-caption">
-                {photoList[lightboxIndex].uploadedBy} &middot; {new Date(photoList[lightboxIndex].uploadedAt).toLocaleDateString('es-CO')}
+              <div className="lightbox-caption" onClick={(e) => e.stopPropagation()}>
+                <div>{photoList[lightboxIndex].uploadedBy} &middot; {new Date(photoList[lightboxIndex].uploadedAt).toLocaleDateString('es-CO')}</div>
+                <input
+                  style={{background:'rgba(255,255,255,0.1)', border:'none', borderBottom:'1px solid rgba(255,255,255,0.3)', color:'white', fontSize:13, padding:'6px 0', marginTop:6, width:'100%', maxWidth:300, textAlign:'center', outline:'none'}}
+                  placeholder="Agregar nota..."
+                  defaultValue={photoList[lightboxIndex].caption || ''}
+                  onBlur={(e) => {
+                    const val = e.target.value;
+                    if (val !== (photoList[lightboxIndex].caption || '')) {
+                      db.ref('cali-gastro/photos/' + restaurantId + '/' + photoList[lightboxIndex].id + '/caption').set(val);
+                    }
+                  }}
+                />
               </div>
             </div>
           )}
@@ -1359,6 +1414,12 @@
                 {restaurant.reviews > 0 && <span className="reviews-count">({restaurant.reviews.toLocaleString()})</span>}
               </span>
             )}
+            {(() => {
+              const open = isOpenToday(restaurant.closedDay);
+              if (open === true) return <span style={{fontSize:11, fontWeight:500, color:'#2e7d32', background:'rgba(46,125,50,0.08)', padding:'3px 8px', borderRadius:9999}}>Abierto</span>;
+              if (open === 'partial') return <span style={{fontSize:11, fontWeight:500, color:'#f57c00', background:'rgba(245,124,0,0.08)', padding:'3px 8px', borderRadius:9999}}>Solo almuerzo</span>;
+              return <span style={{fontSize:11, fontWeight:500, color:'var(--outline)', background:'var(--surface-dim)', padding:'3px 8px', borderRadius:9999}}>Cerrado hoy</span>;
+            })()}
           </div>
           <div className="tri-state-group">
             <button
@@ -1424,7 +1485,21 @@
     }
 
     function DetailPanel({ restaurant, personal, photos, onClose, onSave, onDelete, onPhotoUpload, onPhotoDelete }) {
-      const [p, setP] = useState(personal || { status: 'sin-decidir', myRating: 0, dateVisited: '', whatIOrdered: '', totalSpent: '', notes: '', wouldReturn: null });
+      const initPersonal = useMemo(() => {
+        const raw = personal || { status: 'sin-decidir', myRating: 0 };
+        let visits = raw.visits ? (typeof raw.visits === 'object' ? Object.entries(raw.visits).map(([k,v]) => ({id:k,...v})) : []) : [];
+        if (visits.length === 0 && raw.dateVisited) {
+          visits = [{ id: '_legacy', date: raw.dateVisited, ordered: raw.whatIOrdered || '', spent: raw.totalSpent || '', notes: raw.notes || '', wouldReturn: raw.wouldReturn }];
+        }
+        visits.sort((a,b) => (b.date || '').localeCompare(a.date || ''));
+        return { status: raw.status || 'sin-decidir', myRating: raw.myRating || 0, visits };
+      }, [personal]);
+
+      const [status, setStatus] = useState(initPersonal.status);
+      const [myRating, setMyRating] = useState(initPersonal.myRating);
+      const [visits, setVisits] = useState(initPersonal.visits);
+      const [showAddVisit, setShowAddVisit] = useState(false);
+      const [newVisit, setNewVisit] = useState({ date: '', ordered: '', spent: '', notes: '', wouldReturn: null });
 
       const statusOptions = [
         { key: 'sin-decidir', label: 'Sin decidir', cls: 'active-sin' },
@@ -1432,6 +1507,25 @@
         { key: 'ya-fui', label: 'Ya fui', cls: 'active-fui' },
         { key: 'no-interesa', label: 'No me interesa', cls: 'active-no' },
       ];
+
+      const handleAddVisit = () => {
+        if (!newVisit.date) return;
+        const v = { ...newVisit, id: '_' + Date.now() };
+        const updated = [v, ...visits];
+        setVisits(updated);
+        setNewVisit({ date: '', ordered: '', spent: '', notes: '', wouldReturn: null });
+        setShowAddVisit(false);
+      };
+
+      const handleDeleteVisit = (visitId) => {
+        setVisits(visits.filter(v => v.id !== visitId));
+      };
+
+      const handleSave = () => {
+        const visitsObj = {};
+        visits.forEach(v => { visitsObj[v.id] = { date: v.date, ordered: v.ordered, spent: v.spent, notes: v.notes, wouldReturn: v.wouldReturn }; });
+        onSave(restaurant.id, { status, myRating, visits: visitsObj });
+      };
 
       return (
         <div className="overlay" onClick={onClose}>
@@ -1445,8 +1539,8 @@
               {statusOptions.map(s => (
                 <button
                   key={s.key}
-                  className={`detail-status-chip ${p.status === s.key ? s.cls : ''}`}
-                  onClick={() => setP({...p, status: s.key})}
+                  className={`detail-status-chip ${status === s.key ? s.cls : ''}`}
+                  onClick={() => setStatus(s.key)}
                 >{s.label}</button>
               ))}
             </div>
@@ -1457,6 +1551,14 @@
                 <div className="detail-row">
                   <span className="label">Direcci&oacute;n</span>
                   <span className="value">{restaurant.address}</span>
+                </div>
+              )}
+              {restaurant.lat && restaurant.lng && (
+                <div style={{marginBottom:12}}>
+                  <a href={'https://www.google.com/maps/dir/?api=1&destination=' + restaurant.lat + ',' + restaurant.lng} target="_blank" rel="noopener" className="btn-ghost" style={{display:'inline-flex', alignItems:'center', gap:6, padding:'7px 14px', fontSize:12, textDecoration:'none'}}>
+                    <span className="material-symbols-outlined" style={{fontSize:16}}>directions</span>
+                    C&oacute;mo llegar
+                  </a>
                 </div>
               )}
               <div className="detail-row">
@@ -1486,7 +1588,7 @@
               {restaurant.instagram && (
                 <div className="detail-row">
                   <span className="label">Instagram</span>
-                  <span className="value">@{restaurant.instagram}</span>
+                  <span className="value"><a href={'https://instagram.com/' + restaurant.instagram} target="_blank" rel="noopener" style={{color:'var(--primary)', textDecoration:'none', fontWeight:500}}>@{restaurant.instagram}</a></span>
                 </div>
               )}
               {(restaurant.tags || []).length > 0 && (
@@ -1512,47 +1614,54 @@
               <h3>Mi experiencia</h3>
               <div style={{marginBottom:16, display:'flex', alignItems:'center', gap:12}}>
                 <span style={{fontSize:13, color:'var(--outline)', fontWeight:500}}>Mi rating</span>
-                <StarRating rating={p.myRating || 0} onRate={(val) => setP({...p, myRating: val})} size={22} />
+                <StarRating rating={myRating} onRate={setMyRating} size={22} />
               </div>
-              <input
-                type="date"
-                className="detail-input"
-                value={p.dateVisited || ''}
-                onChange={(e) => setP({...p, dateVisited: e.target.value})}
-                placeholder="Fecha de visita"
-              />
-              <input
-                className="detail-input"
-                value={p.whatIOrdered || ''}
-                onChange={(e) => setP({...p, whatIOrdered: e.target.value})}
-                placeholder="&iquest;Qu&eacute; ped&iacute;?"
-              />
-              <input
-                className="detail-input"
-                type="number"
-                value={p.totalSpent || ''}
-                onChange={(e) => setP({...p, totalSpent: e.target.value})}
-                placeholder="Total gastado (COP)"
-              />
-              <textarea
-                className="detail-textarea"
-                value={p.notes || ''}
-                onChange={(e) => setP({...p, notes: e.target.value})}
-                placeholder="Notas personales..."
-              />
-              <div className="toggle-switch" onClick={() => setP({...p, wouldReturn: !p.wouldReturn})}>
-                <div className={`toggle-track ${p.wouldReturn ? 'on' : ''}`}>
-                  <div className="toggle-knob" />
+
+              {visits.length > 0 && (
+                <div style={{marginBottom:16}}>
+                  {visits.map(v => (
+                    <div key={v.id} style={{background:'var(--surface)', border:'1px solid var(--outline-variant)', borderRadius:'var(--radius)', padding:14, marginBottom:8, position:'relative'}}>
+                      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6}}>
+                        <span style={{fontSize:13, fontWeight:600, color:'var(--on-surface)'}}>{v.date ? new Date(v.date + 'T12:00:00').toLocaleDateString('es-CO', {day:'numeric', month:'short', year:'numeric'}) : 'Sin fecha'}</span>
+                        <button onClick={() => handleDeleteVisit(v.id)} style={{background:'none', border:'none', color:'var(--outline)', cursor:'pointer', fontSize:16, padding:2}}>&times;</button>
+                      </div>
+                      {v.ordered && <div style={{fontSize:13, color:'var(--on-surface-variant)', marginBottom:4}}>{v.ordered}</div>}
+                      {v.spent && <div style={{fontSize:12, color:'var(--outline)', marginBottom:4}}>$ {Number(v.spent).toLocaleString('es-CO')}</div>}
+                      {v.notes && <div style={{fontSize:12, color:'var(--on-surface-variant)', fontStyle:'italic', marginBottom:4}}>{v.notes}</div>}
+                      {v.wouldReturn !== null && <div style={{fontSize:11, color: v.wouldReturn ? '#2e7d32' : 'var(--error)'}}>{v.wouldReturn ? 'Volveria' : 'No volveria'}</div>}
+                    </div>
+                  ))}
                 </div>
-                <span>&iquest;Volver&iacute;a?</span>
-              </div>
+              )}
+
+              {showAddVisit ? (
+                <div style={{background:'var(--surface-container-low)', border:'1px solid var(--outline-variant)', borderRadius:'var(--radius)', padding:16, marginBottom:12}}>
+                  <input type="date" className="detail-input" value={newVisit.date} onChange={e => setNewVisit({...newVisit, date: e.target.value})} />
+                  <input className="detail-input" value={newVisit.ordered} onChange={e => setNewVisit({...newVisit, ordered: e.target.value})} placeholder="&iquest;Qu&eacute; pedimos?" />
+                  <input className="detail-input" type="number" value={newVisit.spent} onChange={e => setNewVisit({...newVisit, spent: e.target.value})} placeholder="Total gastado (COP)" />
+                  <textarea className="detail-textarea" value={newVisit.notes} onChange={e => setNewVisit({...newVisit, notes: e.target.value})} placeholder="Notas..." />
+                  <div className="toggle-switch" onClick={() => setNewVisit({...newVisit, wouldReturn: !newVisit.wouldReturn})} style={{marginBottom:12}}>
+                    <div className={`toggle-track ${newVisit.wouldReturn ? 'on' : ''}`}><div className="toggle-knob" /></div>
+                    <span>&iquest;Volver&iacute;a?</span>
+                  </div>
+                  <div style={{display:'flex', gap:8}}>
+                    <button className="btn-primary" onClick={handleAddVisit} style={{padding:'8px 16px', fontSize:12}}>Agregar</button>
+                    <button className="btn-ghost" onClick={() => setShowAddVisit(false)} style={{padding:'8px 16px', fontSize:12}}>Cancelar</button>
+                  </div>
+                </div>
+              ) : (
+                <button className="btn-ghost" onClick={() => setShowAddVisit(true)} style={{display:'flex', alignItems:'center', gap:6, fontSize:12}}>
+                  <span className="material-symbols-outlined" style={{fontSize:16}}>add</span>
+                  Agregar visita
+                </button>
+              )}
             </div>
 
             <div style={{display:'flex', gap:10, marginTop:28, justifyContent:'space-between'}}>
               <button className="btn-danger" onClick={() => { if(confirm('¿Eliminar ' + restaurant.name + '?')) onDelete(restaurant.id); }}>Eliminar</button>
               <div style={{display:'flex', gap:10}}>
                 <button className="btn-ghost" onClick={onClose}>Cerrar</button>
-                <button className="btn-primary" onClick={() => onSave(restaurant.id, p)}>Guardar</button>
+                <button className="btn-primary" onClick={handleSave}>Guardar</button>
               </div>
             </div>
           </div>
@@ -1933,8 +2042,20 @@
                 </>
               )}
               <img className="lightbox-img" src={currentPhoto.url} alt="" onClick={(e) => e.stopPropagation()} />
-              <div className="lightbox-caption">
-                {getLightboxRestaurantName()} &middot; {currentPhoto.uploadedBy} &middot; {new Date(currentPhoto.uploadedAt).toLocaleDateString('es-CO')}
+              <div className="lightbox-caption" onClick={(e) => e.stopPropagation()}>
+                <div>{getLightboxRestaurantName()} &middot; {currentPhoto.uploadedBy} &middot; {new Date(currentPhoto.uploadedAt).toLocaleDateString('es-CO')}</div>
+                <input
+                  style={{background:'rgba(255,255,255,0.1)', border:'none', borderBottom:'1px solid rgba(255,255,255,0.3)', color:'white', fontSize:13, padding:'6px 0', marginTop:6, width:'100%', maxWidth:300, textAlign:'center', outline:'none'}}
+                  placeholder="Agregar nota..."
+                  defaultValue={currentPhoto.caption || ''}
+                  key={currentPhoto.id}
+                  onBlur={(e) => {
+                    const val = e.target.value;
+                    if (val !== (currentPhoto.caption || '')) {
+                      db.ref('cali-gastro/photos/' + currentPhoto.restaurantId + '/' + currentPhoto.id + '/caption').set(val);
+                    }
+                  }}
+                />
               </div>
             </div>
           )}
@@ -1971,7 +2092,7 @@
     function StatCard({ number, label, color }) {
       return (
         <div style={{
-          background: '#ffffff',
+          background: 'var(--card-bg)',
           borderRadius: 12,
           border: '1px solid var(--outline-variant)',
           padding: 24,
@@ -2002,7 +2123,7 @@
       return (
         <div
           style={{
-            background: '#ffffff',
+            background: 'var(--card-bg)',
             borderRadius: 12,
             border: '1px solid var(--outline-variant)',
             padding: 16,
@@ -2075,11 +2196,18 @@
             <p style={{fontFamily:'var(--font-body)', fontSize:16, color:'var(--on-surface-variant)', marginTop:8}}>Tu gu&iacute;a personal de restaurantes en Cali</p>
           </div>
 
-          <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginBottom:48}}>
+          <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginBottom:16}}>
             <StatCard number={stats.total} label="Restaurantes" color="var(--primary)" />
             <StatCard number={stats.quiero} label="Por visitar" color="var(--tertiary)" />
             <StatCard number={stats.fui} label="Visitados" color="var(--secondary)" />
           </div>
+          {stats.totalVisits > 0 && (
+            <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginBottom:48}}>
+              <StatCard number={'$' + stats.totalSpent.toLocaleString('es-CO')} label="Total gastado" color="var(--on-surface)" />
+              <StatCard number={stats.totalVisits} label="Visitas" color="var(--on-surface)" />
+              <StatCard number={'$' + stats.avgPerVisit.toLocaleString('es-CO')} label="Promedio/salida" color="var(--on-surface)" />
+            </div>
+          )}
 
           <h2 style={{fontFamily:'var(--font-headline)', fontSize:24, fontWeight:500, color:'var(--on-surface)', marginBottom:16}}>Destacados</h2>
           <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))', gap:16, marginBottom:48}}>
@@ -2088,9 +2216,109 @@
             ))}
           </div>
 
-          <div style={{display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:16}}>
+          <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16}}>
             <NavCard icon="restaurant" title="Explorar" subtitle={`${stats.total} restaurantes`} onClick={() => onNavigate('list')} />
+            <NavCard icon="casino" title="&iquest;A d&oacute;nde vamos?" subtitle="Date night" onClick={() => onNavigate('randomizer')} />
             <NavCard icon="map" title="Mapa de Cali" subtitle="Ver ubicaciones" onClick={() => onNavigate('map')} />
+          </div>
+        </div>
+      );
+    }
+
+    /* ---- Randomizer Modal ---- */
+    function RandomizerModal({ restaurants, personalData, onClose, onSelect }) {
+      const [result, setResult] = useState(null);
+      const [animating, setAnimating] = useState(false);
+      const [priceFilter, setPriceFilter] = useState('');
+
+      const candidates = useMemo(() => {
+        let pool = restaurants.filter(r => {
+          const status = (personalData[r.id] || {}).status || 'sin-decidir';
+          const open = isOpenToday(r.closedDay);
+          if (open === false) return false;
+          if (priceFilter && r.priceTier !== priceFilter) return false;
+          return status === 'quiero-ir';
+        });
+        if (pool.length === 0) {
+          pool = restaurants.filter(r => {
+            const status = (personalData[r.id] || {}).status || 'sin-decidir';
+            const open = isOpenToday(r.closedDay);
+            if (open === false) return false;
+            if (priceFilter && r.priceTier !== priceFilter) return false;
+            return status !== 'no-interesa';
+          });
+        }
+        return pool;
+      }, [restaurants, personalData, priceFilter]);
+
+      const spin = () => {
+        if (candidates.length === 0) return;
+        setAnimating(true);
+        setResult(null);
+        setTimeout(() => {
+          const idx = Math.floor(Math.random() * candidates.length);
+          setResult(candidates[idx]);
+          setAnimating(false);
+        }, 1500);
+      };
+
+      useEffect(() => { if (candidates.length > 0 && !result) spin(); }, []);
+
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{textAlign:'center', maxWidth:440}}>
+            <h2 style={{marginBottom:8}}>&iquest;A d&oacute;nde vamos?</h2>
+            <p style={{fontSize:13, color:'var(--on-surface-variant)', marginBottom:20}}>{candidates.length} opciones abiertas hoy</p>
+
+            <div style={{display:'flex', gap:8, justifyContent:'center', marginBottom:24}}>
+              {['','$','$$','$$$','$$$$'].map(p => (
+                <button key={p} onClick={() => setPriceFilter(p)} style={{
+                  padding:'5px 12px', borderRadius:9999, fontSize:12, fontWeight:600, cursor:'pointer',
+                  border:'1px solid', fontFamily:'var(--font-body)',
+                  background: priceFilter === p ? 'var(--primary)' : 'transparent',
+                  color: priceFilter === p ? 'white' : 'var(--on-surface-variant)',
+                  borderColor: priceFilter === p ? 'var(--primary)' : 'var(--outline-variant)'
+                }}>{p || 'Todos'}</button>
+              ))}
+            </div>
+
+            <div style={{minHeight:200, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:24}}>
+              {animating && (
+                <div style={{animation:'pulse 0.3s infinite alternate', opacity:0.6}}>
+                  <span className="material-symbols-outlined" style={{fontSize:64, color:'var(--primary)'}}>restaurant</span>
+                </div>
+              )}
+              {!animating && result && (
+                <div style={{animation:'scaleIn 0.3s ease-out'}}>
+                  <div style={{fontFamily:'var(--font-headline)', fontSize:28, fontWeight:600, color:'var(--on-surface)', marginBottom:8}}>{result.name}</div>
+                  <div style={{fontSize:14, color:'var(--on-surface-variant)', marginBottom:4}}>{result.zone} &middot; {result.priceTier}</div>
+                  <div style={{fontSize:13, color:'var(--outline)', marginBottom:8}}>{result.cuisine}</div>
+                  {result.rating && <div style={{fontSize:14, color:'var(--primary)', marginBottom:4}}>&#9733; {result.rating}</div>}
+                  {result.highlight && <div style={{fontSize:12, color:'var(--on-surface-variant)', fontStyle:'italic'}}>{result.highlight}</div>}
+                </div>
+              )}
+              {!animating && !result && candidates.length === 0 && (
+                <p style={{color:'var(--outline)', fontSize:14}}>No hay restaurantes abiertos hoy con ese filtro</p>
+              )}
+            </div>
+
+            <div style={{display:'flex', gap:10, justifyContent:'center', flexWrap:'wrap'}}>
+              <button className="btn-primary" onClick={spin} disabled={candidates.length === 0}>Otro</button>
+              {result && (
+                <>
+                  <button className="btn-ghost" onClick={() => onSelect(result)}>Ver ficha</button>
+                  {result.lat && result.lng && (
+                    <a href={'https://www.google.com/maps/dir/?api=1&destination=' + result.lat + ',' + result.lng} target="_blank" rel="noopener" className="btn-ghost" style={{textDecoration:'none', display:'inline-flex', alignItems:'center', gap:4}}>
+                      <span className="material-symbols-outlined" style={{fontSize:16}}>directions</span> Ir
+                    </a>
+                  )}
+                </>
+              )}
+            </div>
+
+            <div style={{marginTop:20}}>
+              <button className="btn-ghost" onClick={onClose} style={{fontSize:12}}>Cerrar</button>
+            </div>
           </div>
         </div>
       );
@@ -2150,7 +2378,7 @@
               <option value="$$$$">$$$$ (&gt;120K)</option>
             </select>
             <div className="status-chips">
-              {[{key:'todos',label:'Todos'},{key:'quiero-ir',label:'Quiero ir'},{key:'ya-fui',label:'Ya fui'},{key:'no-interesa',label:'No me interesa'},{key:'sin-decidir',label:'Sin decidir'}].map(s => (
+              {[{key:'todos',label:'Todos'},{key:'quiero-ir',label:'Quiero ir'},{key:'ya-fui',label:'Ya fui'},{key:'no-interesa',label:'No me interesa'},{key:'sin-decidir',label:'Sin decidir'},{key:'abierto-hoy',label:'Abierto hoy'}].map(s => (
                 <button key={s.key} className={`status-chip ${statusFilter === s.key ? 'active' : ''}`} onClick={() => setStatusFilter(s.key)}>{s.label}</button>
               ))}
             </div>
@@ -2297,6 +2525,13 @@
 
     /* ---- Main App ---- */
     function App() {
+      const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
+
+      useEffect(() => {
+        document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+        localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+      }, [darkMode]);
+
       const [user, setUser] = useState(null);
       const [authLoading, setAuthLoading] = useState(true);
       const [data, setData] = useState({ restaurants: [], personal: {}, photos: {} });
@@ -2312,6 +2547,7 @@
       const [sortDesc, setSortDesc] = useState(true);
       const [selectedRestaurant, setSelectedRestaurant] = useState(null);
       const [showAddModal, setShowAddModal] = useState(false);
+      const [showRandomizer, setShowRandomizer] = useState(false);
 
       useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
@@ -2413,7 +2649,9 @@
             if (zoneFilter !== 'Todas' && r.zone !== zoneFilter) return false;
             if (tagFilter && !(r.tags || []).includes(tagFilter)) return false;
             if (priceFilter && r.priceTier !== priceFilter) return false;
-            if (statusFilter !== 'todos') {
+            if (statusFilter === 'abierto-hoy') {
+              if (isOpenToday(r.closedDay) === false) return false;
+            } else if (statusFilter !== 'todos') {
               const ps = (data.personal[r.id] || {}).status || 'sin-decidir';
               if (ps !== statusFilter) return false;
             }
@@ -2435,13 +2673,22 @@
 
       const stats = useMemo(() => {
         const total = data.restaurants.length;
-        let quiero = 0, fui = 0, no = 0;
+        let quiero = 0, fui = 0, no = 0, totalSpent = 0, totalVisits = 0;
         Object.values(data.personal).forEach(p => {
           if (p.status === 'quiero-ir') quiero++;
           if (p.status === 'ya-fui') fui++;
           if (p.status === 'no-interesa') no++;
+          if (p.visits) {
+            const vList = typeof p.visits === 'object' ? Object.values(p.visits) : [];
+            totalVisits += vList.length;
+            vList.forEach(v => { if (v.spent) totalSpent += Number(v.spent) || 0; });
+          } else if (p.totalSpent) {
+            totalVisits += 1;
+            totalSpent += Number(p.totalSpent) || 0;
+          }
         });
-        return { total, quiero, fui, no };
+        const avgPerVisit = totalVisits > 0 ? Math.round(totalSpent / totalVisits) : 0;
+        return { total, quiero, fui, no, totalSpent, totalVisits, avgPerVisit };
       }, [data]);
 
       const handleSort = (key) => {
@@ -2503,16 +2750,21 @@
 
       return (
         <div>
-          <div className="user-pill" onClick={handleSignOut} title="Cerrar sesi&oacute;n">
-            <img src={user.photoURL} alt="" referrerPolicy="no-referrer" />
-            <span>{user.displayName ? user.displayName.split(' ')[0] : user.email}</span>
+          <div style={{position:'fixed', top:12, right:16, zIndex:1001, display:'flex', alignItems:'center', gap:8}}>
+            <button onClick={() => setDarkMode(!darkMode)} style={{width:32, height:32, borderRadius:'50%', border:'1px solid var(--outline-variant)', background:'var(--card-bg)', color:'var(--on-surface-variant)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center'}} title={darkMode ? 'Modo claro' : 'Modo oscuro'}>
+              <span className="material-symbols-outlined" style={{fontSize:18}}>{darkMode ? 'light_mode' : 'dark_mode'}</span>
+            </button>
+            <div className="user-pill" onClick={handleSignOut} title="Cerrar sesi&oacute;n" style={{position:'static'}}>
+              <img src={user.photoURL} alt="" referrerPolicy="no-referrer" />
+              <span>{user.displayName ? user.displayName.split(' ')[0] : user.email}</span>
+            </div>
           </div>
           {page === 'home' && (
             <HomePage
               stats={stats}
               restaurants={data.restaurants}
               personalData={data.personal}
-              onNavigate={setPage}
+              onNavigate={(p) => p === 'randomizer' ? setShowRandomizer(true) : setPage(p)}
             />
           )}
 
@@ -2579,6 +2831,15 @@
 
           {showAddModal && (
             <AddModal onClose={() => setShowAddModal(false)} onAdd={handleAdd} />
+          )}
+
+          {showRandomizer && (
+            <RandomizerModal
+              restaurants={data.restaurants}
+              personalData={data.personal}
+              onClose={() => setShowRandomizer(false)}
+              onSelect={(r) => { setShowRandomizer(false); setSelectedRestaurant(r); }}
+            />
           )}
 
           <BottomNav page={page} onNavigate={setPage} />
