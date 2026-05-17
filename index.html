@@ -568,6 +568,87 @@
     }
     @keyframes scaleIn { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     @keyframes pulse { from { transform: scale(1); opacity: 0.5; } to { transform: scale(1.1); opacity: 1; } }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    @keyframes checkBounce { 0% { transform: scale(0); } 50% { transform: scale(1.4); } 100% { transform: scale(1); } }
+    @keyframes confettiPop { 0% { transform: translate(0,0) scale(1); opacity:1; } 100% { transform: translate(var(--tx),var(--ty)) scale(0); opacity:0; } }
+
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface-container) 25%, var(--surface-container-low) 50%, var(--surface-container) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius);
+    }
+
+    .card-cover {
+      height: 120px;
+      margin: -24px -24px 16px -24px;
+      border-radius: var(--radius) var(--radius) 0 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .card-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .card-cover::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0; height: 40px;
+      background: linear-gradient(transparent, var(--card-bg));
+    }
+
+    .bottom-nav-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--primary);
+    }
+
+    .photo-thumb.polaroid {
+      background: var(--card-bg);
+      border: 1px solid var(--outline-variant);
+      padding: 5px 5px 24px 5px;
+      border-radius: 4px;
+      aspect-ratio: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transform: rotate(var(--rot, 0deg));
+      transition: transform 0.2s;
+    }
+    .photo-thumb.polaroid:hover { transform: rotate(0deg) scale(1.03); }
+    .photo-thumb.polaroid img { aspect-ratio: 1; border-radius: 2px; }
+    .photo-thumb.polaroid .polaroid-caption {
+      position: absolute;
+      bottom: 4px; left: 6px; right: 6px;
+      font-size: 10px;
+      color: var(--on-surface-variant);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: var(--font-body);
+    }
+
+    .celebration-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .celebration-check {
+      font-size: 40px;
+      color: var(--primary);
+      animation: checkBounce 0.5s ease-out;
+    }
+    .confetti-particle {
+      position: absolute;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      animation: confettiPop 0.7s ease-out forwards;
+    }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     .detail-panel h2 {
@@ -1389,17 +1470,63 @@
       );
     }
 
-    function RestaurantCard({ restaurant, personal, onClick, onRate, onStatusChange }) {
+    function timeAgo(dateStr) {
+      if (!dateStr) return null;
+      const d = new Date(dateStr + 'T12:00:00');
+      const now = new Date();
+      const days = Math.floor((now - d) / 86400000);
+      if (days === 0) return 'Hoy';
+      if (days === 1) return 'Ayer';
+      if (days < 7) return 'Hace ' + days + ' días';
+      if (days < 30) return 'Hace ' + Math.floor(days / 7) + ' semana' + (Math.floor(days / 7) > 1 ? 's' : '');
+      if (days < 365) return 'Hace ' + Math.floor(days / 30) + ' mes' + (Math.floor(days / 30) > 1 ? 'es' : '');
+      return 'Hace ' + Math.floor(days / 365) + ' año' + (Math.floor(days / 365) > 1 ? 's' : '');
+    }
+
+    function RestaurantCard({ restaurant, personal, coverPhoto, onClick, onRate, onStatusChange }) {
       const p = personal || {};
       const currentStatus = p.status || 'sin-decidir';
+      const [showCelebration, setShowCelebration] = useState(false);
+
+      const lastVisitDate = useMemo(() => {
+        if (currentStatus !== 'ya-fui') return null;
+        if (p.visits) {
+          const vList = Object.values(p.visits).filter(v => v.date);
+          if (vList.length === 0) return null;
+          vList.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+          return vList[0].date;
+        }
+        return p.dateVisited || null;
+      }, [p, currentStatus]);
 
       const handleStatusClick = (e, newStatus) => {
         e.stopPropagation();
+        if (newStatus === 'ya-fui' && currentStatus !== 'ya-fui') {
+          setShowCelebration(true);
+          setTimeout(() => setShowCelebration(false), 900);
+        }
         onStatusChange(restaurant.id, newStatus);
       };
 
       return (
-        <div className="card" onClick={onClick}>
+        <div className="card" onClick={onClick} style={{position:'relative', overflow:'hidden'}}>
+          {showCelebration && (
+            <div className="celebration-overlay">
+              <span className="celebration-check">&#10003;</span>
+              {[0,1,2,3,4,5].map(i => (
+                <span key={i} className="confetti-particle" style={{
+                  background: ['#9b3f25','#006765','#5c614d','#f57c00','#9b3f25','#006765'][i],
+                  '--tx': ['-20px','20px','-15px','15px','-25px','25px'][i],
+                  '--ty': ['-25px','-20px','15px','20px','-10px','10px'][i]
+                }} />
+              ))}
+            </div>
+          )}
+          {coverPhoto && (
+            <div className="card-cover">
+              <img src={coverPhoto} alt="" loading="lazy" />
+            </div>
+          )}
           <div className="card-name">{restaurant.name}</div>
           <div className="card-sub">{restaurant.zone} &middot; {restaurant.priceTier || '$$'}</div>
           <div className="card-tags">
@@ -1435,6 +1562,9 @@
               onClick={(e) => handleStatusClick(e, 'ya-fui')}
             >Ya fui</button>
           </div>
+          {lastVisitDate && (
+            <div style={{fontSize:11, color:'var(--outline)', marginBottom:8}}>{timeAgo(lastVisitDate)}</div>
+          )}
           <div className="card-personal">
             <StarRating rating={p.myRating || 0} onRate={onRate} size={15} />
           </div>
@@ -1954,11 +2084,9 @@
               </div>
               <div className="photo-grid">
                 {group.photos.map((photo, pi) => (
-                  <div key={photo.id} className="photo-thumb" onClick={() => openLightbox(gi, pi)}>
+                  <div key={photo.id} className="photo-thumb polaroid" style={{'--rot': ((pi % 5) - 2) * 0.8 + 'deg'}} onClick={() => openLightbox(gi, pi)}>
                     <img src={photo.url} alt={photo.caption || 'Foto'} loading="lazy" />
-                    <div className="feed-photo-overlay">
-                      {photo.uploadedBy} &middot; {new Date(photo.uploadedAt).toLocaleDateString('es-CO')}
-                    </div>
+                    <span className="polaroid-caption">{photo.caption || (photo.uploadedBy + ' · ' + new Date(photo.uploadedAt).toLocaleDateString('es-CO'))}</span>
                   </div>
                 ))}
               </div>
@@ -2076,8 +2204,8 @@
           {items.map(item => (
             <button
               key={item.key}
-              className="bottom-nav-item"
-              style={{ color: page === item.key ? '#9b3f25' : '#89726c' }}
+              className={`bottom-nav-item ${page === item.key ? 'active' : ''}`}
+              style={{ color: page === item.key ? 'var(--primary)' : 'var(--outline)' }}
               onClick={() => onNavigate(item.key)}
             >
               <span className="material-symbols-outlined">{item.icon}</span>
@@ -2174,7 +2302,15 @@
     }
 
     /* ---- Home Page ---- */
-    function HomePage({ stats, restaurants, personalData, onNavigate }) {
+    function getGreeting(userName) {
+      const h = new Date().getHours();
+      const name = userName || '';
+      if (h < 12) return 'Buenos días, ' + name;
+      if (h < 18) return 'Buenas tardes, ' + name;
+      return 'Buenas noches, ' + name;
+    }
+
+    function HomePage({ stats, restaurants, personalData, onNavigate, userName }) {
       const topPicks = useMemo(() => {
         const quieroIr = restaurants
           .filter(r => (personalData[r.id] || {}).status === 'quiero-ir')
@@ -2193,7 +2329,7 @@
         <div style={{maxWidth:1200, margin:'0 auto', padding:'48px 32px 32px'}}>
           <div style={{textAlign:'center', marginBottom:48}}>
             <h1 style={{fontFamily:'var(--font-headline)', fontSize:42, fontWeight:600, color:'var(--primary)', letterSpacing:'-0.02em'}}>La Esquinita</h1>
-            <p style={{fontFamily:'var(--font-body)', fontSize:16, color:'var(--on-surface-variant)', marginTop:8}}>Nuestro espacio &middot; Isabela &amp; Mateo</p>
+            <p style={{fontFamily:'var(--font-body)', fontSize:16, color:'var(--on-surface-variant)', marginTop:8}}>{getGreeting(userName)}</p>
           </div>
 
           <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginBottom:16}}>
@@ -2331,9 +2467,17 @@
       zoneFilter, setZoneFilter, priceFilter, setPriceFilter,
       statusFilter, setStatusFilter, view, setView,
       sortBy, sortDesc, setSortBy, setSortDesc, handleSort,
-      personalData, setSelectedRestaurant, handleRate, handleStatusChange,
+      personalData, photos, setSelectedRestaurant, handleRate, handleStatusChange,
       setShowAddModal
     }) {
+      const getCoverPhoto = useCallback((restaurantId) => {
+        const rPhotos = photos && photos[restaurantId];
+        if (!rPhotos) return null;
+        const entries = Object.values(rPhotos);
+        if (entries.length === 0) return null;
+        entries.sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
+        return entries[0].url;
+      }, [photos]);
       return (
         <div className="app">
           <div className="header">
@@ -2414,6 +2558,7 @@
                   key={r.id}
                   restaurant={r}
                   personal={personalData[r.id]}
+                  coverPhoto={getCoverPhoto(r.id)}
                   onClick={() => setSelectedRestaurant(r)}
                   onRate={(val) => handleRate(r.id, val)}
                   onStatusChange={handleStatusChange}
@@ -2742,9 +2887,20 @@
       );
 
       if (loading) return (
-        <div className="app" style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'60vh'}}>
-          <h1 style={{fontFamily:'var(--font-headline)', fontSize:32, color:'var(--primary)', fontWeight:600}}>La Esquinita</h1>
-          <p style={{color:'var(--on-surface-variant)', fontSize:14, marginTop:8}}>Cargando restaurantes...</p>
+        <div style={{maxWidth:1200, margin:'0 auto', padding:'48px 32px'}}>
+          <div style={{textAlign:'center', marginBottom:48}}>
+            <h1 style={{fontFamily:'var(--font-headline)', fontSize:42, fontWeight:600, color:'var(--primary)'}}>La Esquinita</h1>
+          </div>
+          <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginBottom:32}}>
+            <div className="skeleton" style={{height:80}} />
+            <div className="skeleton" style={{height:80}} />
+            <div className="skeleton" style={{height:80}} />
+          </div>
+          <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))', gap:16}}>
+            <div className="skeleton" style={{height:160}} />
+            <div className="skeleton" style={{height:160}} />
+            <div className="skeleton" style={{height:160}} />
+          </div>
         </div>
       );
 
@@ -2764,6 +2920,7 @@
               stats={stats}
               restaurants={data.restaurants}
               personalData={data.personal}
+              userName={user.displayName ? user.displayName.split(' ')[0] : ''}
               onNavigate={(p) => p === 'randomizer' ? setShowRandomizer(true) : setPage(p)}
             />
           )}
@@ -2792,6 +2949,7 @@
               setSortDesc={setSortDesc}
               handleSort={handleSort}
               personalData={data.personal}
+              photos={data.photos}
               setSelectedRestaurant={setSelectedRestaurant}
               handleRate={handleRate}
               handleStatusChange={handleStatusChange}
