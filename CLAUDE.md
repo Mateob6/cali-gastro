@@ -2,7 +2,7 @@
 
 ## Overview
 
-Tracker colaborativo de restaurantes en Cali y alrededores (Palmira, etc.). Single HTML file con React + Firebase Realtime Database + Leaflet.js para mapa interactivo. Diseño "Earth & Terracotta" generado con Stitch.
+Tracker colaborativo de restaurantes en Cali y alrededores (Palmira, Dapa, Pance, Lago Calima). 55 restaurantes activos. Single HTML file con React + Firebase Realtime Database + Leaflet.js para mapa interactivo. Diseño "Earth & Terracotta" generado con Stitch.
 
 - **Página:** https://mateob6.github.io/cali-gastro/
 - **Firebase:** https://cali-gastro-default-rtdb.firebaseio.com/
@@ -47,7 +47,14 @@ Galería de fotos por restaurante, compartida entre ambos usuarios.
 }
 ```
 
-Las fotos se comprimen a JPEG (max 1200px, quality 0.8) antes de subir. Se muestran en un grid 3 columnas dentro del DetailPanel, entre "Información pública" y "Mi experiencia". Click en thumbnail abre lightbox fullscreen con navegación.
+Las fotos se comprimen a JPEG (max 800px, quality 0.65) antes de subir usando `createImageBitmap` (no bloquea el hilo principal). Se suben en paralelo cuando se seleccionan múltiples fotos. Se muestran en un grid 3 columnas dentro del DetailPanel, entre "Información pública" y "Mi experiencia". Click en thumbnail abre lightbox fullscreen con navegación.
+
+### HEIC/HEIF (fotos de iPhone)
+
+- **Desde iPhone Safari**: HEIC sube directo (Safari decodifica nativamente)
+- **Desde Chrome desktop**: Chrome no soporta HEIC. La app intenta convertir con `heic2any`, pero si falla muestra error pidiendo convertir a JPEG
+- **Conversión manual en Mac**: `sips -s format jpeg -s formatOptions 80 foto.HEIC --out foto.jpg`
+- **Conversión batch**: `for f in *.HEIC; do sips -s format jpeg -s formatOptions 80 "$f" --out "${f%.HEIC}.jpg"; done`
 
 ## Páginas
 
@@ -185,7 +192,7 @@ Si no encuentras un dato, usa null para números o "" para strings.
 Con el JSON resultante del agente, ejecutar:
 
 ```bash
-curl -X PUT "https://cali-gastro-default-rtdb.firebaseio.com/cali-gastro/restaurants/[ID].json" \
+curl -X PUT "https://cali-gastro-default-rtdb.firebaseio.com/cali-gastro/restaurants/[ID].json?auth=$FIREBASE_DB_SECRET" \
   -H "Content-Type: application/json" \
   -d '[JSON completo del restaurante]'
 ```
@@ -199,7 +206,8 @@ La página se actualiza sola (Firebase realtime listener). No necesita push a Gi
 - Mandar agentes en PARALELO si hay múltiples restaurantes
 - El ID debe ser kebab-case del nombre (ej: "La Sole" → "la-sole")
 - Si el restaurante ya existe, el PUT sobreescribe — útil para actualizar datos
-- Para eliminar: `curl -X DELETE "https://cali-gastro-default-rtdb.firebaseio.com/cali-gastro/restaurants/[ID].json"`
+- Para eliminar: `curl -X DELETE "https://cali-gastro-default-rtdb.firebaseio.com/cali-gastro/restaurants/[ID].json?auth=$FIREBASE_DB_SECRET"`
+- **`$FIREBASE_DB_SECRET`** está en `~/.zshrc` (Firebase legacy database secret)
 - **lat/lng son necesarios** para que el restaurante aparezca en el mapa
 
 ## Taxonomía de tags

@@ -1570,6 +1570,7 @@
 
     /* ---- Feed Page ---- */
     function FeedPage({ restaurants, photos, personalData, onSelectRestaurant }) {
+      const [feedView, setFeedView] = useState('restaurant');
       const [lightboxData, setLightboxData] = useState(null);
 
       const groups = useMemo(() => {
@@ -1579,7 +1580,7 @@
           const restaurant = restaurants.find(r => r.id === restaurantId);
           if (!restaurant || !photoObj) return;
           const photoList = Object.entries(photoObj)
-            .map(([id, d]) => ({ id, restaurantId, ...d }))
+            .map(([id, d]) => ({ id, restaurantId, restaurant, ...d }))
             .sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
           if (photoList.length > 0) {
             result.push({ restaurant, photos: photoList, latestAt: photoList[0].uploadedAt || 0 });
@@ -1589,23 +1590,55 @@
         return result;
       }, [photos, restaurants]);
 
+      const calendarGroups = useMemo(() => {
+        if (!photos || Object.keys(photos).length === 0) return [];
+        const byDate = {};
+        Object.entries(photos).forEach(([restaurantId, photoObj]) => {
+          const restaurant = restaurants.find(r => r.id === restaurantId);
+          if (!restaurant || !photoObj) return;
+          Object.entries(photoObj).forEach(([id, d]) => {
+            const ts = d.uploadedAt || 0;
+            const dateKey = new Date(ts).toISOString().slice(0, 10);
+            if (!byDate[dateKey]) byDate[dateKey] = [];
+            byDate[dateKey].push({ id, restaurantId, restaurant, ...d });
+          });
+        });
+        return Object.entries(byDate)
+          .map(([dateKey, photoList]) => {
+            photoList.sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
+            const dateObj = new Date(dateKey + 'T12:00:00');
+            const dateLabel = dateObj.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            const restaurantCount = new Set(photoList.map(p => p.restaurantId)).size;
+            return { dateKey, dateLabel, photos: photoList, restaurantCount };
+          })
+          .sort((a, b) => b.dateKey.localeCompare(a.dateKey));
+      }, [photos, restaurants]);
+
       const totalPhotos = groups.reduce((sum, g) => sum + g.photos.length, 0);
+
+      const activeGroups = feedView === 'restaurant' ? groups : calendarGroups;
 
       const openLightbox = (groupIdx, photoIdx) => {
         setLightboxData({ groupIdx, photoIdx });
       };
 
-      const currentGroup = lightboxData ? groups[lightboxData.groupIdx] : null;
+      const currentGroup = lightboxData ? activeGroups[lightboxData.groupIdx] : null;
       const currentPhoto = currentGroup ? currentGroup.photos[lightboxData.photoIdx] : null;
       const navLightbox = (dir) => {
         if (!currentGroup) return;
-        const allPhotos = groups.flatMap((g, gi) => g.photos.map((p, pi) => ({ gi, pi })));
+        const allPhotos = activeGroups.flatMap((g, gi) => g.photos.map((p, pi) => ({ gi, pi })));
         const currentFlat = allPhotos.findIndex(x => x.gi === lightboxData.groupIdx && x.pi === lightboxData.photoIdx);
         const next = (currentFlat + dir + allPhotos.length) % allPhotos.length;
         setLightboxData({ groupIdx: allPhotos[next].gi, photoIdx: allPhotos[next].pi });
       };
 
-      if (groups.length === 0) {
+      const getLightboxCaption = () => {
+        if (!currentPhoto) return '';
+        const restaurantName = currentPhoto.restaurant ? currentPhoto.restaurant.name : (currentGroup.restaurant ? currentGroup.restaurant.name : '');
+        return restaurantName + ' · ' + (currentPhoto.uploadedBy || '') + ' · ' + new Date(currentPhoto.uploadedAt).toLocaleDateString('es-CO');
+      };
+
+      if (totalPhotos === 0) {
         return (
           <div className="feed-page">
             <h1 className="feed-title">Fotos</h1>
@@ -1620,9 +1653,21 @@
       return (
         <div className="feed-page">
           <h1 className="feed-title">Fotos</h1>
-          <p className="feed-subtitle">{totalPhotos} foto{totalPhotos !== 1 ? 's' : ''} en {groups.length} lugar{groups.length !== 1 ? 'es' : ''}</p>
+          <p className="feed-subtitle">
+            {totalPhotos} foto{totalPhotos !== 1 ? 's' : ''} en {feedView === 'restaurant'
+              ? groups.length + ' lugar' + (groups.length !== 1 ? 'es' : '')
+              : calendarGroups.length + ' día' + (calendarGroups.length !== 1 ? 's' : '')
+            }
+          </p>
 
-          {groups.map((group, gi) => (
+          <div style={{marginBottom: 24}}>
+            <div className="view-toggle">
+              <button className={`view-btn ${feedView === 'restaurant' ? 'active' : ''}`} onClick={() => { setFeedView('restaurant'); setLightboxData(null); }}>Por restaurante</button>
+              <button className={`view-btn ${feedView === 'calendar' ? 'active' : ''}`} onClick={() => { setFeedView('calendar'); setLightboxData(null); }}>Por fecha</button>
+            </div>
+          </div>
+
+          {feedView === 'restaurant' && groups.map((group, gi) => (
             <div key={group.restaurant.id} className="feed-group">
               <div className="feed-group-header">
                 <div className="feed-group-info">
@@ -1637,6 +1682,27 @@
                     <img src={photo.url} alt={photo.caption || 'Foto'} loading="lazy" />
                     <div className="feed-photo-overlay">
                       {photo.uploadedBy} &middot; {new Date(photo.uploadedAt).toLocaleDateString('es-CO')}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {feedView === 'calendar' && calendarGroups.map((group, gi) => (
+            <div key={group.dateKey} className="feed-group">
+              <div className="feed-group-header">
+                <div className="feed-group-info">
+                  <h3 style={{textTransform: 'capitalize'}}>{group.dateLabel}</h3>
+                  <span>{group.photos.length} foto{group.photos.length !== 1 ? 's' : ''} &middot; {group.restaurantCount} restaurante{group.restaurantCount !== 1 ? 's' : ''}</span>
+                </div>
+              </div>
+              <div className="photo-grid">
+                {group.photos.map((photo, pi) => (
+                  <div key={photo.id} className="photo-thumb" onClick={() => openLightbox(gi, pi)}>
+                    <img src={photo.url} alt={photo.caption || 'Foto'} loading="lazy" />
+                    <div className="feed-photo-overlay">
+                      {photo.restaurant ? photo.restaurant.name : ''} &middot; {photo.uploadedBy}
                     </div>
                   </div>
                 ))}
@@ -1660,9 +1726,7 @@
                 </>
               )}
               <img className="lightbox-img" src={currentPhoto.url} alt="" onClick={(e) => e.stopPropagation()} />
-              <div className="lightbox-caption">
-                {currentGroup.restaurant.name} &middot; {currentPhoto.uploadedBy} &middot; {new Date(currentPhoto.uploadedAt).toLocaleDateString('es-CO')}
-              </div>
+              <div className="lightbox-caption">{getLightboxCaption()}</div>
             </div>
           )}
         </div>
