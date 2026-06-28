@@ -1292,6 +1292,15 @@
 
     const ALLOWED_EMAILS = ['mbcvarios019@gmail.com', 'cnscisabelacas@gmail.com', 'mateo.belalcazar6@gmail.com'];
 
+    const ZONE_REGIONS = {
+      'Norte': ['Granada', 'Granada (Norte)', 'Granada / El Peñón', 'La Flora', 'La Flora (Norte)', 'Vipasa (Norte)', 'Nueva Floresta'],
+      'Sur': ['Ciudad Jardín', 'Pance', 'Valle del Lili', 'Villa del Sur', 'El Limonar', 'Limonar', 'Limonar / Comuna 19', 'Unicentro / Sur', 'Quintas de Don Simón', 'Nueva Tequendama', 'San Cayetano'],
+      'Oeste': ['El Peñón', 'El Peñón / Chipichape', 'San Antonio', 'Cristo Rey (mirador)', 'Vía a Cristo Rey', 'Oeste (Río Cali)', 'Oeste (orilla del Río Cali)', 'Santa Mónica'],
+      'Centro': ['Centro', 'Bulevar del Río, Centro', 'La Merced', 'La Alameda', 'San Fernando', 'Parque del Perro', 'Parque del Perro / San Fernando', 'Centenario'],
+      'Fuera de Cali': ['Palmira', 'La Buitrera, Palmira', 'La Buitrera, Vereda Gualanday', 'Lago Calima', 'Dapa', 'Dapa (corregimiento)'],
+    };
+    const REGION_NAMES = Object.keys(ZONE_REGIONS);
+
     function isOpenToday(closedDay) {
       if (!closedDay || closedDay === 'Abierto siempre') return true;
       const dayNames = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
@@ -2512,7 +2521,13 @@
 
           <div className="filter-controls">
             <select className="filter-select" value={zoneFilter} onChange={e => setZoneFilter(e.target.value)}>
-              {zones.map(z => <option key={z} value={z}>{z === 'Todas' ? 'Todas las zonas' : z}</option>)}
+              <option value="Todas">Todas las zonas</option>
+              <optgroup label="Zonas">
+                {REGION_NAMES.map(r => <option key={'r-'+r} value={'region:'+r}>{r}</option>)}
+              </optgroup>
+              <optgroup label="Barrios">
+                {zones.filter(z => z !== 'Todas').map(z => <option key={z} value={z}>{z}</option>)}
+              </optgroup>
             </select>
             <select className="filter-select" value={priceFilter} onChange={e => setPriceFilter(e.target.value)}>
               <option value="">Precio</option>
@@ -2791,7 +2806,14 @@
       const filtered = useMemo(() => {
         return data.restaurants
           .filter(r => {
-            if (zoneFilter !== 'Todas' && r.zone !== zoneFilter) return false;
+            if (zoneFilter !== 'Todas') {
+              if (zoneFilter.startsWith('region:')) {
+                var region = zoneFilter.slice(7);
+                if (!ZONE_REGIONS[region] || !ZONE_REGIONS[region].includes(r.zone)) return false;
+              } else {
+                if (r.zone !== zoneFilter) return false;
+              }
+            }
             if (tagFilter && !(r.tags || []).includes(tagFilter)) return false;
             if (priceFilter && r.priceTier !== priceFilter) return false;
             if (statusFilter === 'abierto-hoy') {
