@@ -1317,6 +1317,10 @@
       return true;
     }
 
+    function isRestaurant(r) {
+      return !r.placeType || r.placeType === 'restaurant';
+    }
+
     async function compressImage(file, maxWidth, quality) {
       maxWidth = maxWidth || 800;
       quality = quality || 0.65;
@@ -1537,7 +1541,7 @@
             </div>
           )}
           <div className="card-name">{restaurant.name}</div>
-          <div className="card-sub">{restaurant.zone} &middot; {restaurant.priceTier || '$$'}</div>
+          <div className="card-sub">{restaurant.zone}{restaurant.priceTier ? ` · ${restaurant.priceTier}` : ''}</div>
           <div className="card-tags">
             {(restaurant.tags || []).slice(0, 3).map(t => <span key={t} className="tag-pill">{t}</span>)}
           </div>
@@ -1557,26 +1561,30 @@
               return <span style={{fontSize:11, fontWeight:500, color:'var(--outline)', background:'var(--surface-dim)', padding:'3px 8px', borderRadius:9999}}>Cerrado hoy</span>;
             })()}
           </div>
-          <div className="tri-state-group">
-            <button
-              className={`tri-state-btn ${currentStatus === 'sin-decidir' ? 'active-sin' : ''}`}
-              onClick={(e) => handleStatusClick(e, 'sin-decidir')}
-            >Sin decidir</button>
-            <button
-              className={`tri-state-btn ${currentStatus === 'quiero-ir' ? 'active-quiero' : ''}`}
-              onClick={(e) => handleStatusClick(e, 'quiero-ir')}
-            >Quiero ir</button>
-            <button
-              className={`tri-state-btn ${currentStatus === 'ya-fui' ? 'active-fui' : ''}`}
-              onClick={(e) => handleStatusClick(e, 'ya-fui')}
-            >Ya fui</button>
-          </div>
-          {lastVisitDate && (
-            <div style={{fontSize:11, color:'var(--outline)', marginBottom:8}}>{timeAgo(lastVisitDate)}</div>
+          {isRestaurant(restaurant) && (
+            <>
+              <div className="tri-state-group">
+                <button
+                  className={`tri-state-btn ${currentStatus === 'sin-decidir' ? 'active-sin' : ''}`}
+                  onClick={(e) => handleStatusClick(e, 'sin-decidir')}
+                >Sin decidir</button>
+                <button
+                  className={`tri-state-btn ${currentStatus === 'quiero-ir' ? 'active-quiero' : ''}`}
+                  onClick={(e) => handleStatusClick(e, 'quiero-ir')}
+                >Quiero ir</button>
+                <button
+                  className={`tri-state-btn ${currentStatus === 'ya-fui' ? 'active-fui' : ''}`}
+                  onClick={(e) => handleStatusClick(e, 'ya-fui')}
+                >Ya fui</button>
+              </div>
+              {lastVisitDate && (
+                <div style={{fontSize:11, color:'var(--outline)', marginBottom:8}}>{timeAgo(lastVisitDate)}</div>
+              )}
+              <div className="card-personal">
+                <StarRating rating={p.myRating || 0} onRate={onRate} size={15} />
+              </div>
+            </>
           )}
-          <div className="card-personal">
-            <StarRating rating={p.myRating || 0} onRate={onRate} size={15} />
-          </div>
         </div>
       );
     }
@@ -1674,18 +1682,20 @@
               {restaurant.zone} &middot; {restaurant.cuisine}
             </div>
 
-            <div className="detail-status-chips">
-              {statusOptions.map(s => (
-                <button
-                  key={s.key}
-                  className={`detail-status-chip ${status === s.key ? s.cls : ''}`}
-                  onClick={() => setStatus(s.key)}
-                >{s.label}</button>
-              ))}
-            </div>
+            {isRestaurant(restaurant) && (
+              <div className="detail-status-chips">
+                {statusOptions.map(s => (
+                  <button
+                    key={s.key}
+                    className={`detail-status-chip ${status === s.key ? s.cls : ''}`}
+                    onClick={() => setStatus(s.key)}
+                  >{s.label}</button>
+                ))}
+              </div>
+            )}
 
             <div className="detail-section">
-              <h3>Informaci&oacute;n p&uacute;blica</h3>
+              <h3>Informaci&oacute;n</h3>
               {restaurant.address && (
                 <div className="detail-row">
                   <span className="label">Direcci&oacute;n</span>
@@ -1704,26 +1714,38 @@
                 <span className="label">Rating</span>
                 <span className="value">{restaurant.rating ? `★ ${restaurant.rating} (${restaurant.reviews.toLocaleString()} reseñas)` : '—'}</span>
               </div>
+              {isRestaurant(restaurant) && (
+                <>
+                  <div className="detail-row">
+                    <span className="label">Precio</span>
+                    <span className="value">{restaurant.priceRange} por persona</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="label">Platos</span>
+                    <span className="value">{restaurant.highlight}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="label">Ambiente</span>
+                    <span className="value">{restaurant.vibe}</span>
+                  </div>
+                </>
+              )}
+              {!isRestaurant(restaurant) && restaurant.highlight && (
+                <div className="detail-row">
+                  <span className="label">Destacados</span>
+                  <span className="value">{restaurant.highlight}</span>
+                </div>
+              )}
               <div className="detail-row">
-                <span className="label">Precio</span>
-                <span className="value">{restaurant.priceRange} por persona</span>
-              </div>
-              <div className="detail-row">
-                <span className="label">Platos</span>
-                <span className="value">{restaurant.highlight}</span>
-              </div>
-              <div className="detail-row">
-                <span className="label">Ambiente</span>
-                <span className="value">{restaurant.vibe}</span>
-              </div>
-              <div className="detail-row">
-                <span className="label">Cierra</span>
+                <span className="label">Horario</span>
                 <span className="value">{restaurant.closedDay}</span>
               </div>
-              <div className="detail-row">
-                <span className="label">Reserva</span>
-                <span className="value">{restaurant.reserva ? 'Recomendada' : 'No necesaria'}</span>
-              </div>
+              {isRestaurant(restaurant) && (
+                <div className="detail-row">
+                  <span className="label">Reserva</span>
+                  <span className="value">{restaurant.reserva ? 'Recomendada' : 'No necesaria'}</span>
+                </div>
+              )}
               {restaurant.instagram && (
                 <div className="detail-row">
                   <span className="label">Instagram</span>
@@ -1749,52 +1771,54 @@
               />
             </div>
 
-            <div className="detail-section">
-              <h3>Mi experiencia</h3>
-              <div style={{marginBottom:16, display:'flex', alignItems:'center', gap:12}}>
-                <span style={{fontSize:13, color:'var(--outline)', fontWeight:500}}>Mi rating</span>
-                <StarRating rating={myRating} onRate={setMyRating} size={22} />
-              </div>
+            {isRestaurant(restaurant) && (
+              <div className="detail-section">
+                <h3>Mi experiencia</h3>
+                <div style={{marginBottom:16, display:'flex', alignItems:'center', gap:12}}>
+                  <span style={{fontSize:13, color:'var(--outline)', fontWeight:500}}>Mi rating</span>
+                  <StarRating rating={myRating} onRate={setMyRating} size={22} />
+                </div>
 
-              {visits.length > 0 && (
-                <div style={{marginBottom:16}}>
-                  {visits.map(v => (
-                    <div key={v.id} style={{background:'var(--surface)', border:'1px solid var(--outline-variant)', borderRadius:'var(--radius)', padding:14, marginBottom:8, position:'relative'}}>
-                      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6}}>
-                        <span style={{fontSize:13, fontWeight:600, color:'var(--on-surface)'}}>{v.date ? new Date(v.date + 'T12:00:00').toLocaleDateString('es-CO', {day:'numeric', month:'short', year:'numeric'}) : 'Sin fecha'}</span>
-                        <button onClick={() => handleDeleteVisit(v.id)} style={{background:'none', border:'none', color:'var(--outline)', cursor:'pointer', fontSize:16, padding:2}}>&times;</button>
+                {visits.length > 0 && (
+                  <div style={{marginBottom:16}}>
+                    {visits.map(v => (
+                      <div key={v.id} style={{background:'var(--surface)', border:'1px solid var(--outline-variant)', borderRadius:'var(--radius)', padding:14, marginBottom:8, position:'relative'}}>
+                        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6}}>
+                          <span style={{fontSize:13, fontWeight:600, color:'var(--on-surface)'}}>{v.date ? new Date(v.date + 'T12:00:00').toLocaleDateString('es-CO', {day:'numeric', month:'short', year:'numeric'}) : 'Sin fecha'}</span>
+                          <button onClick={() => handleDeleteVisit(v.id)} style={{background:'none', border:'none', color:'var(--outline)', cursor:'pointer', fontSize:16, padding:2}}>&times;</button>
+                        </div>
+                        {v.ordered && <div style={{fontSize:13, color:'var(--on-surface-variant)', marginBottom:4}}>{v.ordered}</div>}
+                        {v.spent && <div style={{fontSize:12, color:'var(--outline)', marginBottom:4}}>$ {Number(v.spent).toLocaleString('es-CO')}</div>}
+                        {v.notes && <div style={{fontSize:12, color:'var(--on-surface-variant)', fontStyle:'italic', marginBottom:4}}>{v.notes}</div>}
+                        {v.wouldReturn !== null && <div style={{fontSize:11, color: v.wouldReturn ? '#2e7d32' : 'var(--error)'}}>{v.wouldReturn ? 'Volveria' : 'No volveria'}</div>}
                       </div>
-                      {v.ordered && <div style={{fontSize:13, color:'var(--on-surface-variant)', marginBottom:4}}>{v.ordered}</div>}
-                      {v.spent && <div style={{fontSize:12, color:'var(--outline)', marginBottom:4}}>$ {Number(v.spent).toLocaleString('es-CO')}</div>}
-                      {v.notes && <div style={{fontSize:12, color:'var(--on-surface-variant)', fontStyle:'italic', marginBottom:4}}>{v.notes}</div>}
-                      {v.wouldReturn !== null && <div style={{fontSize:11, color: v.wouldReturn ? '#2e7d32' : 'var(--error)'}}>{v.wouldReturn ? 'Volveria' : 'No volveria'}</div>}
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
 
-              {showAddVisit ? (
-                <div style={{background:'var(--surface-container-low)', border:'1px solid var(--outline-variant)', borderRadius:'var(--radius)', padding:16, marginBottom:12}}>
-                  <input type="date" className="detail-input" value={newVisit.date} onChange={e => setNewVisit({...newVisit, date: e.target.value})} />
-                  <input className="detail-input" value={newVisit.ordered} onChange={e => setNewVisit({...newVisit, ordered: e.target.value})} placeholder="&iquest;Qu&eacute; pedimos?" />
-                  <input className="detail-input" type="number" value={newVisit.spent} onChange={e => setNewVisit({...newVisit, spent: e.target.value})} placeholder="Total gastado (COP)" />
-                  <textarea className="detail-textarea" value={newVisit.notes} onChange={e => setNewVisit({...newVisit, notes: e.target.value})} placeholder="Notas..." />
-                  <div className="toggle-switch" onClick={() => setNewVisit({...newVisit, wouldReturn: !newVisit.wouldReturn})} style={{marginBottom:12}}>
-                    <div className={`toggle-track ${newVisit.wouldReturn ? 'on' : ''}`}><div className="toggle-knob" /></div>
-                    <span>&iquest;Volver&iacute;a?</span>
+                {showAddVisit ? (
+                  <div style={{background:'var(--surface-container-low)', border:'1px solid var(--outline-variant)', borderRadius:'var(--radius)', padding:16, marginBottom:12}}>
+                    <input type="date" className="detail-input" value={newVisit.date} onChange={e => setNewVisit({...newVisit, date: e.target.value})} />
+                    <input className="detail-input" value={newVisit.ordered} onChange={e => setNewVisit({...newVisit, ordered: e.target.value})} placeholder="&iquest;Qu&eacute; pedimos?" />
+                    <input className="detail-input" type="number" value={newVisit.spent} onChange={e => setNewVisit({...newVisit, spent: e.target.value})} placeholder="Total gastado (COP)" />
+                    <textarea className="detail-textarea" value={newVisit.notes} onChange={e => setNewVisit({...newVisit, notes: e.target.value})} placeholder="Notas..." />
+                    <div className="toggle-switch" onClick={() => setNewVisit({...newVisit, wouldReturn: !newVisit.wouldReturn})} style={{marginBottom:12}}>
+                      <div className={`toggle-track ${newVisit.wouldReturn ? 'on' : ''}`}><div className="toggle-knob" /></div>
+                      <span>&iquest;Volver&iacute;a?</span>
+                    </div>
+                    <div style={{display:'flex', gap:8}}>
+                      <button className="btn-primary" onClick={handleAddVisit} style={{padding:'8px 16px', fontSize:12}}>Agregar</button>
+                      <button className="btn-ghost" onClick={() => setShowAddVisit(false)} style={{padding:'8px 16px', fontSize:12}}>Cancelar</button>
+                    </div>
                   </div>
-                  <div style={{display:'flex', gap:8}}>
-                    <button className="btn-primary" onClick={handleAddVisit} style={{padding:'8px 16px', fontSize:12}}>Agregar</button>
-                    <button className="btn-ghost" onClick={() => setShowAddVisit(false)} style={{padding:'8px 16px', fontSize:12}}>Cancelar</button>
-                  </div>
-                </div>
-              ) : (
-                <button className="btn-ghost" onClick={() => setShowAddVisit(true)} style={{display:'flex', alignItems:'center', gap:6, fontSize:12}}>
-                  <span className="material-symbols-outlined" style={{fontSize:16}}>add</span>
-                  Agregar visita
-                </button>
-              )}
-            </div>
+                ) : (
+                  <button className="btn-ghost" onClick={() => setShowAddVisit(true)} style={{display:'flex', alignItems:'center', gap:6, fontSize:12}}>
+                    <span className="material-symbols-outlined" style={{fontSize:16}}>add</span>
+                    Agregar visita
+                  </button>
+                )}
+              </div>
+            )}
 
             <div style={{display:'flex', gap:10, marginTop:28, justifyContent:'space-between'}}>
               <button className="btn-danger" onClick={() => { if(confirm('¿Eliminar ' + restaurant.name + '?')) onDelete(restaurant.id); }}>Eliminar</button>
@@ -2321,13 +2345,14 @@
 
     function HomePage({ stats, restaurants, personalData, onNavigate, userName }) {
       const topPicks = useMemo(() => {
-        const quieroIr = restaurants
+        const restOnly = restaurants.filter(isRestaurant);
+        const quieroIr = restOnly
           .filter(r => (personalData[r.id] || {}).status === 'quiero-ir')
           .sort((a, b) => (b.rating || 0) - (a.rating || 0));
 
         if (quieroIr.length >= 3) return quieroIr.slice(0, 3);
 
-        const remaining = restaurants
+        const remaining = restOnly
           .filter(r => !quieroIr.find(q => q.id === r.id))
           .sort((a, b) => (b.rating || 0) - (a.rating || 0));
 
@@ -2378,6 +2403,7 @@
 
       const candidates = useMemo(() => {
         let pool = restaurants.filter(r => {
+          if (!isRestaurant(r)) return false;
           const status = (personalData[r.id] || {}).status || 'sin-decidir';
           const open = isOpenToday(r.closedDay);
           if (open === false) return false;
@@ -2386,6 +2412,7 @@
         });
         if (pool.length === 0) {
           pool = restaurants.filter(r => {
+            if (!isRestaurant(r)) return false;
             const status = (personalData[r.id] || {}).status || 'sin-decidir';
             const open = isOpenToday(r.closedDay);
             if (open === false) return false;
@@ -2612,6 +2639,7 @@
       const mapInstance = useRef(null);
       const markersRef = useRef([]);
       const [mapStatusFilter, setMapStatusFilter] = useState('todos');
+      const [mapPlaceType, setMapPlaceType] = useState('todos');
 
       useEffect(() => {
         if (!mapInstance.current && mapRef.current) {
@@ -2631,6 +2659,10 @@
 
         const filteredRestaurants = restaurants.filter(r => {
           if (!r.lat || !r.lng) return false;
+          const pt = r.placeType || 'restaurant';
+          if (mapPlaceType === 'restaurantes' && pt !== 'restaurant') return false;
+          if (mapPlaceType === 'centros-comerciales' && pt !== 'centro-comercial') return false;
+          if (mapPlaceType === 'casas' && pt !== 'casa') return false;
           if (mapStatusFilter === 'todos') return true;
           const status = (personalData[r.id] || {}).status || 'sin-decidir';
           return status === mapStatusFilter;
@@ -2638,11 +2670,22 @@
 
         filteredRestaurants.forEach(r => {
           const status = (personalData[r.id] || {}).status || 'sin-decidir';
-          const color = status === 'quiero-ir' ? '#006765' : status === 'ya-fui' ? '#9b3f25' : '#89726c';
+          const pt = r.placeType || 'restaurant';
+          var color, inner;
+          if (pt === 'centro-comercial') {
+            color = '#7B61FF';
+            inner = '<span class="material-symbols-outlined" style="color:white;font-size:14px">shopping_bag</span>';
+          } else if (pt === 'casa') {
+            color = '#E8871E';
+            inner = '<span class="material-symbols-outlined" style="color:white;font-size:14px">home</span>';
+          } else {
+            color = status === 'quiero-ir' ? '#006765' : status === 'ya-fui' ? '#9b3f25' : '#89726c';
+            inner = '<span style="color:white;font-size:12px;font-weight:600">' + (r.priceTier ? r.priceTier.length : '') + '</span>';
+          }
 
           const icon = L.divIcon({
             className: '',
-            html: '<div style="background:' + color + ';width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center"><span style="color:white;font-size:12px;font-weight:600">' + (r.priceTier ? r.priceTier.length : '') + '</span></div>',
+            html: '<div style="background:' + color + ';width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center">' + inner + '</div>',
             iconSize: [28, 28],
             iconAnchor: [14, 14],
             popupAnchor: [0, -16]
@@ -2661,11 +2704,22 @@
           marker.bindPopup(popupContent);
           markersRef.current.push(marker);
         });
-      }, [restaurants, personalData, mapStatusFilter]);
+      }, [restaurants, personalData, mapStatusFilter, mapPlaceType]);
 
       return (
         <div style={{display:'flex', flexDirection:'column', height:'calc(100vh - 72px)'}}>
-          <div style={{padding:'12px 16px', display:'flex', gap:8, overflowX:'auto', background:'var(--surface)', borderBottom:'1px solid var(--outline-variant)'}}>
+          <div style={{padding:'8px 16px 0', display:'flex', gap:8, overflowX:'auto', background:'var(--surface)'}}>
+            {[{k:'todos',l:'Todos'},{k:'restaurantes',l:'Restaurantes'},{k:'centros-comerciales',l:'CC'},{k:'casas',l:'Casas'}].map(p => (
+              <button key={p.k} onClick={() => setMapPlaceType(p.k)} style={{
+                padding:'5px 12px', borderRadius:9999, border:'1px solid', fontSize:10, fontWeight:600, cursor:'pointer', whiteSpace:'nowrap',
+                fontFamily:'var(--font-body)', textTransform:'uppercase', letterSpacing:'0.08em',
+                background: mapPlaceType === p.k ? 'var(--on-surface)' : 'transparent',
+                color: mapPlaceType === p.k ? 'var(--surface)' : 'var(--on-surface-variant)',
+                borderColor: mapPlaceType === p.k ? 'var(--on-surface)' : 'var(--outline-variant)'
+              }}>{p.l}</button>
+            ))}
+          </div>
+          <div style={{padding:'8px 16px', display:'flex', gap:8, overflowX:'auto', background:'var(--surface)', borderBottom:'1px solid var(--outline-variant)'}}>
             {['todos','quiero-ir','ya-fui','sin-decidir','no-interesa'].map(s => (
               <button key={s} onClick={() => setMapStatusFilter(s)} style={{
                 padding:'6px 14px', borderRadius:9999, border:'1px solid', fontSize:11, fontWeight:600, cursor:'pointer', whiteSpace:'nowrap',
@@ -2798,8 +2852,9 @@
       }, [data.restaurants]);
 
       const allTags = useMemo(() => {
+        const hidden = new Set(['casa', 'base']);
         const t = new Set();
-        data.restaurants.forEach(r => (r.tags || []).forEach(tag => t.add(tag)));
+        data.restaurants.forEach(r => (r.tags || []).forEach(tag => { if (!hidden.has(tag)) t.add(tag); }));
         return [...t].sort();
       }, [data.restaurants]);
 
@@ -2839,9 +2894,12 @@
       }, [data, zoneFilter, tagFilter, priceFilter, statusFilter, search, sortBy, sortDesc]);
 
       const stats = useMemo(() => {
-        const total = data.restaurants.length;
+        const restOnly = data.restaurants.filter(isRestaurant);
+        const restIds = new Set(restOnly.map(r => r.id));
+        const total = restOnly.length;
         let quiero = 0, fui = 0, no = 0, totalSpent = 0, totalVisits = 0;
-        Object.values(data.personal).forEach(p => {
+        Object.entries(data.personal).forEach(([id, p]) => {
+          if (!restIds.has(id)) return;
           if (p.status === 'quiero-ir') quiero++;
           if (p.status === 'ya-fui') fui++;
           if (p.status === 'no-interesa') no++;

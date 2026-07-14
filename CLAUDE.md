@@ -2,7 +2,7 @@
 
 ## Overview
 
-Espacio personal de Isabela y Mateo para trackear restaurantes en Cali y alrededores. 55+ restaurantes activos. Single HTML file con React + Firebase Realtime Database + Leaflet.js para mapa interactivo. Diseño "Earth & Terracotta" con dark mode. PWA instalable.
+Espacio personal de Isabela y Mateo para trackear restaurantes en Cali y alrededores (incluye Palmira). 55+ restaurantes activos + 4 marcadores personales (casas + iglesia). Single HTML file con React + Firebase Realtime Database + Leaflet.js para mapa interactivo. Diseño "Earth & Terracotta" con dark mode. PWA instalable.
 
 - **Página:** https://mateob6.github.io/cali-gastro/
 - **Firebase:** https://cali-gastro-default-rtdb.firebaseio.com/
@@ -105,12 +105,35 @@ App (estado global, Firebase listener, auth, dark mode, handlers)
 
 ## Modelo de datos
 
+### Lugares especiales (casas)
+
+La base de datos incluye marcadores personales que no son restaurantes:
+
+| ID | Nombre | Zona | Dirección |
+|----|--------|------|-----------|
+| `casa-mateo` | Casa Mateo | Valle del Lili | Conjunto Gualanday Plaza, Calle 34 #98B-35 |
+| `casa-isabela` | Casa Isabela | Villa del Sur | Cra. 42a #26c-5 |
+| `casa-papa-mateo` | Casa Papa Mateo | Palmira | Calle 43a #1-94, Palmira |
+| `iglesia-nazareno` | Iglesia Nazareno | Quintas de Don Simón | Av. Pasoancho #75-109, Cali |
+
+Usan el mismo schema de restaurante con `tags: ["casa", "base"]`, `priceRange: "Gratis"`, `rating: 5.0`. El campo `cuisine` indica el tipo ("Casa" o "Iglesia"). Aparecen en el mapa y la lista como cualquier otro lugar.
+
+### Campo `placeType`
+
+Todos los documentos en `restaurants/` tienen un campo `placeType`:
+- `"restaurant"` — restaurante (default si el campo no existe, para backward compat)
+- `"centro-comercial"` — centro comercial (15 CCs: 13 Cali + 2 Palmira)
+- `"casa"` — marcador personal (4: Casa Mateo, Casa Isabela, Casa Papa Mateo, Iglesia Nazareno)
+
+El helper `isRestaurant(r)` centraliza la exclusión: stats, randomizer, destacados y "Mi experiencia" solo aplican a restaurantes. CCs y casas aparecen en lista, mapa y fotos pero no contaminan métricas.
+
 ### Restaurante (Firebase: `cali-gastro/restaurants/{id}`)
 
 ```javascript
 {
   id: "odiseo-bistro",         // kebab-case único
   name: "Odiseo Bistro",       // nombre oficial
+  placeType: "restaurant",     // restaurant | centro-comercial | casa
   zone: "Granada",             // barrio/zona en Cali
   address: "Av. 9 Norte #10-107, Granada, Cali",
   cuisine: "Mediterránea / Autor",  // descripción libre, máx 4 palabras
@@ -128,6 +151,33 @@ App (estado global, Firebase listener, auth, dark mode, handlers)
   instagram: null,             // handle sin @ o null
   lat: 3.4573,                 // coordenadas para el mapa
   lng: -76.5360
+}
+```
+
+### Centro Comercial (Firebase: `cali-gastro/restaurants/{id}`)
+
+```javascript
+{
+  id: "chipichape",
+  name: "Centro Comercial Chipichape",
+  placeType: "centro-comercial",
+  zone: "Chipichape, Norte",
+  address: "Calle 38N #6N-35, Cali",
+  cuisine: "Centro Comercial",         // siempre "Centro Comercial"
+  tags: ["centro-comercial"],           // solo este tag
+  priceTier: null,                      // no aplica
+  priceRange: null,
+  priceMin: null,
+  priceMax: null,
+  rating: 4.7,                         // Google Maps
+  reviews: 52215,
+  highlight: "Cine Colombia, 510+ tiendas, Happy City",
+  vibe: "El mall más completo del norte",
+  reserva: false,
+  closedDay: "Abierto siempre",
+  instagram: null,
+  lat: 3.4759,
+  lng: -76.5276
 }
 ```
 
@@ -278,6 +328,9 @@ fusión · de-autor · tradicional · parrilla · mariscos · pizzería · pasta
 ### Experiencia (por qué vas)
 fine-dining · casual · coctelería · bar-gastronómico · speakeasy · brunch · mirador · música-en-vivo · romántico · pet-friendly · para-grupos
 
+### Especial
+casa · base
+
 ### Precio
 $ (<40K) · $$ (40K–70K) · $$$ (70K–120K) · $$$$ (>120K)
 
@@ -316,9 +369,11 @@ Generado en Stitch (`assets/17553987259345874469`). Incluye dark mode.
 | Icons | Material Symbols Outlined | — |
 
 ### Marcadores del mapa
-- Teal (`#006765`): Quiero ir
-- Terracotta (`#9b3f25`): Ya fui
-- Gris (`#89726c`): Sin decidir / No me interesa
+- Teal (`#006765`): Restaurante — Quiero ir
+- Terracotta (`#9b3f25`): Restaurante — Ya fui
+- Gris (`#89726c`): Restaurante — Sin decidir / No me interesa
+- Púrpura (`#7B61FF`): Centro Comercial (icono shopping_bag)
+- Naranja (`#E8871E`): Casa / Iglesia (icono home)
 
 ## Archivos del proyecto
 
