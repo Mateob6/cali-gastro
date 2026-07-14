@@ -2,7 +2,7 @@
 
 ## Overview
 
-Espacio personal de Isabela y Mateo para trackear restaurantes en Cali y alrededores (incluye Palmira). 55+ restaurantes activos + 4 marcadores personales (casas + iglesia). Single HTML file con React + Firebase Realtime Database + Leaflet.js para mapa interactivo. Diseño "Earth & Terracotta" con dark mode. PWA instalable.
+Espacio personal de Isabela y Mateo para trackear restaurantes, centros comerciales y lugares en Cali y alrededores (incluye Palmira). 94+ restaurantes + 15 centros comerciales + 4 marcadores personales (casas + iglesia). Single HTML file con React + Firebase Realtime Database + Leaflet.js para mapa interactivo. Diseño "Earth & Terracotta" con dark mode. PWA instalable. Sistema `placeType` para diferenciar categorías.
 
 - **Página:** https://mateob6.github.io/cali-gastro/
 - **Firebase:** https://cali-gastro-default-rtdb.firebaseio.com/
@@ -205,6 +205,17 @@ El helper `isRestaurant(r)` centraliza la exclusión: stats, randomizer, destaca
 
 ## Features principales
 
+### Sistema placeType
+- `isRestaurant(r)` helper centraliza la exclusión de no-restaurantes
+- Stats (HomePage): solo cuenta restaurantes en total, quiero-ir, ya-fui, gastos
+- Randomizer: solo sugiere restaurantes (nunca CCs ni casas)
+- Destacados (topPicks): solo muestra restaurantes
+- RestaurantCard: oculta tri-state, star rating y última visita para no-restaurantes
+- DetailPanel: oculta status chips, precio, platos, ambiente, reserva y "Mi experiencia" para no-restaurantes; muestra "Destacados" en vez de "Platos"
+- Mapa: marcadores diferenciados por tipo (púrpura CCs, naranja casas) + filtro por tipo de lugar
+- Tag chips: excluye tags internas ("casa", "base"); mantiene "centro-comercial" como filtrable
+- El tag "centro-comercial" permite filtrar todos los CCs en la lista
+
 ### Historial de visitas
 - Múltiples visitas por restaurante (fecha, pedido, gasto, notas, ¿volvería?)
 - Se agregan desde DetailPanel con botón "Agregar visita"
@@ -242,7 +253,7 @@ El helper `isRestaurant(r)` centraliza la exclusión: stats, randomizer, destaca
 - Fotos estilo polaroid en feed (rotación aleatoria, caption visible)
 - Saludo dinámico en HomePage según hora del día
 - Skeleton shimmer en loading state
-- "Última visita: hace X días" en cards de restaurantes visitados
+- "Última visita: hace X días" en cards de restaurantes visitados (solo restaurantes)
 
 ## Agregar restaurantes
 
@@ -328,7 +339,10 @@ fusión · de-autor · tradicional · parrilla · mariscos · pizzería · pasta
 ### Experiencia (por qué vas)
 fine-dining · casual · coctelería · bar-gastronómico · speakeasy · brunch · mirador · música-en-vivo · romántico · pet-friendly · para-grupos
 
-### Especial
+### Categoría de lugar
+centro-comercial
+
+### Especial (ocultas en chips)
 casa · base
 
 ### Precio
@@ -339,7 +353,7 @@ $ (<40K) · $$ (40K–70K) · $$$ (70K–120K) · $$$$ (>120K)
 ```
 cali-gastro/
 ├── restaurants/
-│   ├── {id}/  → datos públicos + lat/lng + tags
+│   ├── {id}/  → datos públicos + placeType + lat/lng + tags
 │   └── ...
 ├── personal/
 │   ├── {id}/  → status, myRating, visits: { visitId: { date, ordered, spent, notes, wouldReturn } }
